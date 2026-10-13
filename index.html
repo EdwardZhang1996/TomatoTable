@@ -14,7 +14,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     --ink:#1C1917; --ink-soft:#57534E; --muted:#A8A29E; --line:#E7E5E4; --line-soft:#F0EFED; --line2:#D6D3D1;
     --primary:#DC2626; --primary-ink:#B91C1C; --primary-soft:#FCA5A5; --primary-tint:rgba(220,38,38,.08);
     --amber:#D97706; --amber-ink:#B45309; --amber-tint:rgba(217,119,6,.10);
-    --solid:#1C1917; --solid-hover:#000000; --on-solid:#FFFFFF; --switch-on:#1C1917;
+    --solid:#1C1917; --solid-hover:#000000; --on-solid:#FFFFFF; --switch-on:#1C1917; --switch-off:#D6D3D1; --knob-on:#FFFFFF; --knob-off:#FFFFFF;
     --hover:rgba(28,25,23,.06); --hover2:rgba(28,25,23,.09); --focus:rgba(28,25,23,.35);
     --topbar:rgba(245,245,244,.92); --scrim:rgba(28,25,23,.35); --tfull:rgba(250,250,249,.98);
     --toast:#1C1917; --on-toast:#FFFFFF; --toast-btn:#FFFFFF; --toast-btn-ink:#1C1917; --shadow:0 8px 24px rgba(0,0,0,.14);
@@ -26,7 +26,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     --ink:#E7E5E4; --ink-soft:#A8A29E; --muted:#78716C; --line:#2E2A27; --line-soft:#262220; --line2:#44403C;
     --primary:#F87171; --primary-ink:#FCA5A5; --primary-soft:#7F1D1D; --primary-tint:rgba(248,113,113,.12);
     --amber:#FBBF24; --amber-ink:#FCD34D; --amber-tint:rgba(251,191,36,.12);
-    --solid:#E7E5E4; --solid-hover:#FFFFFF; --on-solid:#1C1917; --switch-on:#78716C;
+    --solid:#E7E5E4; --solid-hover:#FFFFFF; --on-solid:#1C1917; --switch-on:#E7E5E4; --switch-off:#44403C; --knob-on:#1C1917; --knob-off:#A8A29E;
     --hover:rgba(255,255,255,.06); --hover2:rgba(255,255,255,.10); --focus:rgba(231,229,228,.5);
     --topbar:rgba(15,14,13,.88); --scrim:rgba(0,0,0,.6); --tfull:rgba(15,14,13,.98);
     --toast:#E7E5E4; --on-toast:#1C1917; --toast-btn:#1C1917; --toast-btn-ink:#E7E5E4; --shadow:0 8px 24px rgba(0,0,0,.5);
@@ -38,7 +38,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     --ink:#E7E5E4; --ink-soft:#A8A29E; --muted:#78716C; --line:#2E2A27; --line-soft:#262220; --line2:#44403C;
     --primary:#F87171; --primary-ink:#FCA5A5; --primary-soft:#7F1D1D; --primary-tint:rgba(248,113,113,.12);
     --amber:#FBBF24; --amber-ink:#FCD34D; --amber-tint:rgba(251,191,36,.12);
-    --solid:#E7E5E4; --solid-hover:#FFFFFF; --on-solid:#1C1917; --switch-on:#78716C;
+    --solid:#E7E5E4; --solid-hover:#FFFFFF; --on-solid:#1C1917; --switch-on:#E7E5E4; --switch-off:#44403C; --knob-on:#1C1917; --knob-off:#A8A29E;
     --hover:rgba(255,255,255,.06); --hover2:rgba(255,255,255,.10); --focus:rgba(231,229,228,.5);
     --topbar:rgba(15,14,13,.88); --scrim:rgba(0,0,0,.6); --tfull:rgba(15,14,13,.98);
     --toast:#E7E5E4; --on-toast:#1C1917; --toast-btn:#1C1917; --toast-btn-ink:#E7E5E4; --shadow:0 8px 24px rgba(0,0,0,.5);
@@ -169,9 +169,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .mk-f{fill:var(--primary);}
   .mk-e{fill:none;stroke:var(--muted);}
   .mk-x{fill:none;stroke:var(--paper);}
-  .mk-xp{fill:none;stroke:var(--primary-ink);}
-  .mk-int,.mk-ext{font-weight:700;font-size:15px;line-height:1;color:var(--primary-ink);padding:0 1px;}
-  .mk-ext{color:var(--amber-ink);}
+  .mk-xp{fill:none;stroke:var(--primary);}
+  .mk-int,.mk-ext{font-weight:700;font-size:15px;line-height:1;color:var(--ink-soft);padding:0 1px;}
   .iconbtn{flex:none;width:28px;height:28px;border:none;background:transparent;border-radius:6px;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;padding:0;}
   .iconbtn:hover{background:var(--hover);color:var(--ink);}
   .iconbtn.active{background:var(--hover2);color:var(--ink);}
@@ -314,10 +313,10 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .toggle .lab small{display:block;color:var(--muted);font-size:12px;}
   .switch{position:relative;width:36px;height:20px;flex:none;}
   .switch input{opacity:0;width:0;height:0;}
-  .slider{position:absolute;inset:0;background:var(--line2);border-radius:999px;transition:.2s;cursor:pointer;}
-  .slider::before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:#FFFFFF;border-radius:50%;transition:.2s;}
+  .slider{position:absolute;inset:0;background:var(--switch-off);border-radius:999px;transition:.2s;cursor:pointer;}
+  .slider::before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--knob-off);border-radius:50%;transition:.2s;}
   .switch input:checked + .slider{background:var(--switch-on);}
-  .switch input:checked + .slider::before{transform:translateX(16px);}
+  .switch input:checked + .slider::before{transform:translateX(16px);background:var(--knob-on);}
   .dur-row{display:flex;gap:10px;flex-wrap:wrap;}
   .dur{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-soft);}
   .dur input{width:70px;padding:6px;font-size:13px;text-align:center;}
@@ -368,6 +367,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .g-sec{border-top:1px solid var(--line-soft);padding:10px 0 4px;font-size:13px;line-height:1.7;color:var(--ink-soft);}
   .g-sec b{display:block;color:var(--ink);font-size:13px;font-weight:600;margin-bottom:2px;}
   .g-sec .gx{color:var(--primary);font-weight:700;}
+  .g-sec .gi{color:var(--ink-soft);font-weight:700;}
   .g-foot{justify-content:space-between;}
 
   /* editable text: one language everywhere */
@@ -552,7 +552,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   <div class="modal guide" role="dialog" aria-modal="true" aria-label="使用指南">
     <h2>番茄工作法记录表</h2>
     <p class="sub">一张会计时的记录纸。三分钟看懂：</p>
-    <div class="g-sec"><b>① 核心循环</b>添加待办 → 点 ⋯ 估几个番茄（□）→ 点 ▶ 开始专注 25 分钟 → 做完自动记一个 <span class="gx">×</span>；中途自己分心记 <span class="gx">'</span>，被人打断记 <span class="gx">–</span>。估少了它会让你「再估」（○ 二估、△ 三估）。事情做完，勾掉左边的方框；一天忙完点「结束这一天」封存翻页。</div>
+    <div class="g-sec"><b>① 核心循环</b>添加待办 → 点 ⋯ 估几个番茄（□）→ 点 ▶ 开始专注 25 分钟 → 做完自动记一个 <span class="gx">×</span>；中途自己分心记 <span class="gi">’</span>，被人打断记 <span class="gi">–</span>。估少了它会让你「再估」（○ 二估、△ 三估）。事情做完，勾掉左边的方框；一天忙完点「结束这一天」封存翻页。</div>
     <div class="g-sec"><b>② 三个清单的分工</b>今日待办＝今天要做的；计划外紧急＝干活时冒出来的事，先记下别打断番茄，回头再排；活动备忘＝长期或重复的事，点右侧的重复图标可设每天 / 每周重复，重复项直接勾左边方框就是当天打卡；一次性的事勾掉后，第二天会自动清走。每个清单按住序号可以拖动排序。</div>
     <div class="g-sec"><b>③ 数据在哪</b>记录只存在这台设备的这个浏览器里，不上传任何服务器。换设备或清理浏览器前，先到设置里「导出备份」，再在新地方「导入」即可接上。</div>
     <div class="modal-foot g-foot"><button class="dbtn" id="guideDemo">载入示例看看</button><button class="tbtn go" id="guideStart">开始使用</button></div>
