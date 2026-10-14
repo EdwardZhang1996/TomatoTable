@@ -64,6 +64,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .icbtn{border:none;background:transparent;width:30px;height:30px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-soft);flex:none;padding:0;}
   .datebtn:hover,.icbtn:hover{background:var(--hover);color:var(--ink);}
   .icbtn.on{background:var(--solid);color:var(--on-solid);}
+  .icbtn:disabled{opacity:.3;cursor:default;background:transparent;}
   .tb-sp{flex:1 1 auto;}
 
   .wrap{max-width:1040px;margin:0 auto;padding:0 16px;}
@@ -137,9 +138,10 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .sec-n{color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums;}
   .sec-sp{flex:1 1 auto;}
   .sec-meta{font-size:12px;color:var(--muted);font-weight:400;}
-  .sec-act{border:none;background:none;color:var(--ink-soft);font-size:12px;padding:3px 7px;border-radius:5px;}
-  .sec-act:hover{background:var(--hover);color:var(--ink);}
-  .sec-act.on{background:var(--solid);color:var(--on-solid);}
+  .sec-act{display:inline-flex;align-items:center;gap:4px;flex:none;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);font-size:12px;font-weight:500;height:26px;padding:0 9px;border-radius:6px;}
+  .sec-act svg.ic{width:14px;height:14px;}
+  .sec-act:hover{border-color:var(--line2);background:var(--hover);color:var(--ink);}
+  .sec-act.on{background:var(--solid);border-color:var(--solid);color:var(--on-solid);}
 
   /* rows */
   .list{list-style:none;margin:0;padding:0;}
@@ -180,6 +182,11 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .item.dragging{opacity:.4;}
   .item.drop-before{box-shadow:inset 0 2px 0 var(--ink);}
   .item.drop-after{box-shadow:inset 0 -2px 0 var(--ink);}
+  .panel.drop-ok{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink);}
+  .ck-sp{flex:none;width:18px;height:18px;}
+  .item.deferred > .row .task-text{color:var(--muted);}
+  .moved-tag{flex:none;font-size:12px;color:var(--muted);white-space:nowrap;}
+  .exp-other{border-top:1px solid var(--line-soft);padding-top:8px;}
   .empty-hint{list-style:none;padding:12px 0;font-size:13px;color:var(--muted);}
 
   .reest{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 8px 52px;padding:8px 10px;background:var(--amber-tint);border-radius:6px;}
@@ -276,6 +283,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .dayend{max-width:1040px;margin:28px auto 0;padding:0 16px;display:flex;justify-content:center;}
   .endbtn{height:44px;padding:0 36px;border:none;border-radius:8px;background:var(--solid);color:var(--on-solid);font-size:15px;font-weight:600;letter-spacing:.04em;}
   .endbtn:hover{background:var(--solid-hover);}
+  body.selecting .dayend{visibility:hidden;}
   .lock-banner{display:none;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;padding:9px 10px 9px 16px;background:var(--paper);border:1px solid var(--line);border-radius:8px;font-size:13px;color:var(--ink-soft);}
   .lock-banner.show{display:flex;}
   .lb-stamp{font-weight:600;color:var(--ink);}
@@ -290,6 +298,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .undo-toast.show,.select-bar.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
   .ut-go,.sb-go{border:none;background:var(--toast-btn);color:var(--toast-btn-ink);border-radius:6px;padding:5px 12px;font-size:13px;font-weight:500;flex:none;}
   .ut-go:hover,.sb-go:hover{opacity:.88;}
+  .sb-go.alt{background:transparent;color:var(--on-toast);box-shadow:inset 0 0 0 1px var(--on-toast);}
   .sb-count{white-space:nowrap;}
   .sb-x{border:none;background:none;color:var(--on-toast);opacity:.7;font-size:13px;padding:5px 6px;flex:none;}
   .sb-x:hover{opacity:1;}
@@ -336,12 +345,15 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .cal-head .m{font-size:15px;font-weight:600;}
   .cal-nav{border:none;background:transparent;width:30px;height:30px;border-radius:6px;font-size:16px;color:var(--ink-soft);}
   .cal-nav:hover{background:var(--hover);color:var(--ink);}
+  .cal-nav:disabled{opacity:.3;cursor:default;background:transparent;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
   .cal-wd{text-align:center;font-size:11px;color:var(--muted);padding:4px 0;}
   .cal-cell{aspect-ratio:1/1;border:1.5px solid transparent;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:13px;cursor:pointer;}
   .cal-cell:hover{background:var(--hover);}
   .cal-cell.empty{cursor:default;}
   .cal-cell.empty:hover{background:transparent;}
+  .cal-cell.future{color:var(--line2);cursor:default;}
+  .cal-cell.future:hover{background:transparent;}
   .cal-cell.today{border-color:var(--ink);}
   .cal-cell.sel{background:var(--solid);color:var(--on-solid);}
   .cal-cell .cnt{font-size:10px;color:var(--primary);font-weight:600;}
@@ -429,8 +441,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
 
 <div class="grid">
   <main class="col" id="mainCol">
-    <section class="panel" id="todoBox">
-      <div class="sec-h"><h1>今日待办</h1><span class="sec-n" id="todoCount"></span><span class="sec-sp"></span><span class="sec-meta" id="estInfo"></span></div>
+    <section class="panel" id="todoBox" data-droplist="todo">
+      <div class="sec-h"><h1>今日待办</h1><span class="sec-n" id="todoCount"></span><span class="sec-sp"></span><span class="sec-meta" id="estInfo"></span><button class="sec-act" data-selmode="todo">多选</button></div>
       <ul class="list" id="todoList"></ul>
       <div class="addrow">
         <input type="text" id="todoInput" placeholder="添加今日待办，回车确认">
@@ -438,8 +450,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       </div>
     </section>
 
-    <section class="panel cap" id="unplannedBox">
-      <div class="sec-h"><span>计划外紧急</span><span class="sec-n" id="unplannedCount"></span><span class="sec-sp"></span><button class="sec-act" data-selmode="unplanned">选择</button></div>
+    <section class="panel cap" id="unplannedBox" data-droplist="unplanned">
+      <div class="sec-h"><span>计划外紧急</span><span class="sec-n" id="unplannedCount"></span><span class="sec-sp"></span><button class="sec-act" data-selmode="unplanned">多选</button></div>
       <ul class="list" id="unplannedList"></ul>
       <div class="addrow">
         <input type="text" id="unplannedInput" placeholder="临时冒出来的事，先记一笔">
@@ -449,8 +461,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   </main>
 
   <aside class="col" id="memoCol">
-    <section class="panel cap memo" id="memoBox">
-      <div class="sec-h"><span>活动备忘</span><span class="sec-n" id="memoCount"></span><span class="sec-sp"></span><button class="sec-act" data-selmode="memo">选择</button></div>
+    <section class="panel cap memo" id="memoBox" data-droplist="memo">
+      <div class="sec-h"><span>活动备忘</span><span class="sec-n" id="memoCount"></span><span class="sec-sp"></span><button class="sec-act" data-selmode="memo">多选</button></div>
       <ul class="list" id="memoList"></ul>
       <div class="addrow">
         <input type="text" id="memoInput" placeholder="长期或重复的事">
@@ -552,8 +564,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   <div class="modal guide" role="dialog" aria-modal="true" aria-label="使用指南">
     <h2>番茄工作法记录表</h2>
     <p class="sub">一张会计时的记录纸。三分钟看懂：</p>
-    <div class="g-sec"><b>① 核心循环</b>添加待办 → 点 ⋯ 估几个番茄（□）→ 点 ▶ 开始专注 25 分钟 → 做完自动记一个 <span class="gx">×</span>；中途自己分心记 <span class="gi">’</span>，被人打断记 <span class="gi">–</span>。估少了它会让你「再估」（○ 二估、△ 三估）。事情做完，勾掉左边的方框；一天忙完点「结束这一天」封存翻页。</div>
-    <div class="g-sec"><b>② 三个清单的分工</b>今日待办＝今天要做的；计划外紧急＝干活时冒出来的事，先记下别打断番茄，回头再排；活动备忘＝长期或重复的事，点右侧的重复图标可设每天 / 每周重复，重复项直接勾左边方框就是当天打卡；一次性的事勾掉后，第二天会自动清走。每个清单按住序号可以拖动排序。</div>
+    <div class="g-sec"><b>① 核心循环</b>添加待办 → 点 ⋯ 估几个番茄（□）→ 点 ▶ 开始专注 25 分钟 → 做完自动记一个 <span class="gx">×</span>；中途自己分心记 <span class="gi">’</span>，被人打断记 <span class="gi">–</span>。估少了它会让你「再估」（○ 二估、△ 三估）。事情做完，勾掉左边的方框；一天忙完点页面底部的「结束这一天」封存，第二天打开会自动翻到新的一天。</div>
+    <div class="g-sec"><b>② 三个清单的分工</b>今日待办＝今天要做的；计划外紧急＝干活时冒出来的事，先记下别打断番茄，回头再排；活动备忘＝长期或重复的事，点右侧的重复图标可设每天 / 每周重复，重复项直接勾左边方框就是当天打卡；一次性的事勾掉后，第二天会自动清走。按住序号可以拖动排序，也可以拖到别的清单：待办、计划外拖进备忘，备忘、计划外拖进今日待办。点清单右上角的「多选」可以一次处理好几条。</div>
     <div class="g-sec"><b>③ 数据在哪</b>记录只存在这台设备的这个浏览器里，不上传任何服务器。换设备或清理浏览器前，先到设置里「导出备份」，再在新地方「导入」即可接上。</div>
     <div class="modal-foot g-foot"><button class="dbtn" id="guideDemo">载入示例看看</button><button class="tbtn go" id="guideStart">开始使用</button></div>
   </div>
@@ -578,6 +590,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function mkIc(p){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';}
   var IC={
     check:mkIc('<polyline points="20 6 9 17 4 12"/>'),
+    select:mkIc('<rect x="3" y="4" width="7" height="7" rx="1.5"/><path d="M5 7.5l1.3 1.3L8.6 6.3"/><path d="M14 7.5h7"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><path d="M14 16.5h7"/>'),
     play:mkIc('<polygon points="7 4 19 12 7 20 7 4" fill="currentColor"/>'),
     more:mkIc('<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>'),
     x:mkIc('<path d="M18 6 6 18M6 6l12 12"/>'),
@@ -614,7 +627,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     saveRender();
   }
 
-  var state, expanded={}, calMonth=null, catchupHidden=false, pendingRest=false, reEst=null, capSel={}, lastAdd=null, undoTimer=null, dragId=null, recurEdit=null, recurCalMonth=null, selMode={unplanned:false,memo:false}, undoFn=null, loadProblem=null, saveWarned=false;
+  var state, expanded={}, calMonth=null, catchupHidden=false, pendingRest=false, reEst=null, capSel={}, lastAdd=null, undoTimer=null, recurEdit=null, recurCalMonth=null, selMode={todo:false,unplanned:false,memo:false}, todoSel={}, drag=null, undoFn=null, loadProblem=null, saveWarned=false;
 
   function normalize(s){
     if(!s||typeof s!=="object"||Array.isArray(s))throw new Error("not a record");
@@ -674,7 +687,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
   function totalFocusMin(){var m=(state.startOffset||0)*25; var keys=sortedKeys(); for(var i=0;i<keys.length;i++)m+=dayMin(state.days[keys[i]]); return m;}
   function estTotal(t){return (t.est[0]||0)+(t.est[1]||0)+(t.est[2]||0);}
-  function todayEstTotal(){var d=curDay(),s=0,i; for(i=0;i<d.todos.length;i++)s+=estTotal(d.todos[i]); return s;}
+  function todayEstTotal(){var d=curDay(),s=0,i; for(i=0;i<d.todos.length;i++)if(!d.todos[i].deferred)s+=estTotal(d.todos[i]); return s;}
 
   function roundOfSlot(i,est){if(i<est[0])return 0; if(i<est[0]+est[1])return 1; return 2;}
   function markSVG(kind,done){
@@ -731,6 +744,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       h+='<textarea data-act="review" rows="1" placeholder="回顾（可留空）">'+esc(t.events[i].review)+'</textarea></div>';
     }}
     h+='</div>';
+    var fx=(T.phase==="work"&&T.taskId===t.id);
+    if(!t.deferred&&!fx&&!locked())h+='<div class="exp-sec exp-other"><div class="lab">其他</div><div class="ctl-row"><button class="smallbtn" data-act="toMemo">移到活动备忘</button></div></div>';
     return h;
   }
 
@@ -738,14 +753,18 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var open=!!expanded[t.id], focusing=(T.phase==="work"&&T.taskId===t.id), lk=locked();
     var rem0=0;
     if(focusing){rem0=T.running?(T.target-Date.now()):T.remaining; if(rem0<0)rem0=0;}
-    var h='<li class="item'+(t.done?" done":"")+(open?" expanded":"")+(focusing?" focusing":"")+'" data-id="'+t.id+'">';
+    var df=!!t.deferred, sel=!!selMode.todo;
+    var h='<li class="item'+(t.done?" done":"")+(df?" deferred":"")+(open?" expanded":"")+(focusing?" focusing":"")+'" data-id="'+t.id+'" data-list="todo">';
     h+='<div class="row">';
-    h+='<span class="num"'+(lk?'':' draggable="true" data-grip="'+t.id+'" title="按住拖动排序"')+'>'+(idx+1)+'</span>';
-    h+='<button class="ck'+(t.done?" on":"")+'" data-act="done" title="'+(t.done?"取消完成":"标记完成")+'" aria-label="标记完成">'+IC.check+'</button>';
+    h+='<span class="num"'+(lk?'':' draggable="true" data-grip="'+t.id+'" title="'+((df||focusing)?"按住拖动排序":"按住拖动排序，也可以拖到活动备忘")+'"')+'>'+(idx+1)+'</span>';
+    if(sel&&!df&&!focusing)h+='<span class="capsel'+(todoSel[t.id]?" on":"")+'" data-act="tsel" title="选中"></span>';
+    else if(sel||df)h+='<span class="ck-sp"></span>';
+    else h+='<button class="ck'+(t.done?" on":"")+'" data-act="done" title="'+(t.done?"取消完成":"标记完成")+'" aria-label="标记完成">'+IC.check+'</button>';
     h+='<input class="task-text" data-act="text" value="'+esc(t.text)+'" placeholder="任务内容…">';
+    if(df)h+='<span class="moved-tag">已移到备忘</span>';
     h+='<span class="marks">'+renderMarks(t)+'</span>';
     if(focusing)h+='<span class="row-clock" id="fcclock-'+t.id+'">'+fmtClock(rem0)+'</span>';
-    else h+='<button class="iconbtn go" data-act="start" title="开始专注" aria-label="开始专注">'+IC.play+'</button>';
+    else if(!df)h+='<button class="iconbtn go" data-act="start" title="开始专注" aria-label="开始专注">'+IC.play+'</button>';
     h+='<button class="iconbtn exp'+(open?" active":"")+'" data-act="exp" title="更多：预估、打扰、意图回顾" aria-label="更多">'+IC.more+'</button>';
     if(!focusing)h+='<button class="iconbtn del" data-act="del" title="删除" aria-label="删除">'+IC.x+'</button>';
     h+='</div>';
@@ -763,7 +782,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     return h;
   }
   function setCount(id,n){var el=document.getElementById(id);if(el)el.textContent=n?String(n):"";}
-  function renderTodos(){var d=curDay(),h=""; for(var i=0;i<d.todos.length;i++)h+=taskRow(d.todos[i],i,d.todos.length); if(!d.todos.length&&!locked())h='<li class="empty-hint">还没有待办。在下面加一条，点 ⋯ 估几个番茄，再点 ▶ 开始专注。</li>'; document.getElementById("todoList").innerHTML=h; setCount("todoCount",d.todos.length);}
+  function renderTodos(){var d=curDay(),h=""; for(var i=0;i<d.todos.length;i++)h+=taskRow(d.todos[i],i,d.todos.length); if(!d.todos.length&&!locked())h='<li class="empty-hint">还没有待办。在下面加一条，点 ⋯ 估几个番茄，再点 ▶ 开始专注。</li>'; document.getElementById("todoList").innerHTML=h; setCount("todoCount",d.todos.length); syncSelBtns(); renderSelectBar();}
 
   function inList(a,k){return !!a&&a.indexOf(k)>=0;}
   function isRecurring(c){return !!(c.recur||(c.recurAdd&&c.recurAdd.length));}
@@ -858,8 +877,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var ckOn=recurring?!!(info&&info.state==="done"):!!c.done;
     var liCls="item"+((c.done&&!recurring)?" done":"")+((recurring&&ckOn)?" done-today":"");
     var h='<li class="'+liCls+'" data-id="'+c.id+'" data-list="'+list+'"><div class="row">';
-    h+='<span class="num"'+(lk?'':' draggable="true" data-grip="'+c.id+'" title="按住拖动排序"')+'>'+(idx+1)+'</span>';
-    if(sel)h+='<span class="capsel'+(capSel[c.id]?" on":"")+'" data-cact="capsel" title="选中以合并"></span>';
+    h+='<span class="num"'+(lk?'':' draggable="true" data-grip="'+c.id+'" title="'+(isMemo?"按住拖动排序，也可以拖到今日待办":"按住拖动排序，也可以拖到今日待办或活动备忘")+'"')+'>'+(idx+1)+'</span>';
+    if(sel)h+='<span class="capsel'+(capSel[c.id]?" on":"")+'" data-cact="capsel" title="选中"></span>';
     else h+='<button class="ck'+(ckOn?" on":"")+'" data-cact="capdone" title="'+(recurring?"今日打卡":"标记完成")+'" aria-label="'+(recurring?"今日打卡":"标记完成")+'">'+IC.check+'</button>';
     h+='<div class="c-body">';
     h+='<textarea class="task-text" data-cact="text" rows="1" placeholder="'+ph+'">'+esc(c.text)+'</textarea>';
@@ -872,17 +891,27 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     h+='</li>';
     return h;
   }
-  function selCounts(){var m=0,u=0,i,mA=state.memo,uA=curDay().unplanned;for(i=0;i<mA.length;i++)if(capSel[mA[i].id])m++;for(i=0;i<uA.length;i++)if(capSel[uA[i].id])u++;return {m:m,u:u,t:m+u};}
+  function selCounts(){var m=0,u=0,t=0,i,mA=state.memo,d=curDay(),uA=d.unplanned,tA=d.todos;for(i=0;i<mA.length;i++)if(capSel[mA[i].id])m++;for(i=0;i<uA.length;i++)if(capSel[uA[i].id])u++;for(i=0;i<tA.length;i++)if(todoSel[tA[i].id])t++;return {m:m,u:u,t:t,n:m+u};}
   function renderSelectBar(){
     var bar=document.getElementById("selectBar"); if(!bar)return;
-    var c=selCounts();
-    if(c.t<=0){bar.classList.remove("show");return;}
-    var parts=[];if(c.m)parts.push("备忘 "+c.m);if(c.u)parts.push("紧急 "+c.u);
-    var detail=(parts.length>1)?("（"+parts.join(" · ")+"）"):"";
-    bar.innerHTML='<span class="sb-count">已选 '+c.t+' 条'+detail+'</span><button class="sb-go" data-sact="merge">合并成一个待办</button><button class="sb-x" data-sact="clear">取消</button>';
+    var c=selCounts(),h="";
+    if(c.t>0)h='<span class="sb-count">已选 '+c.t+' 条待办</span><button class="sb-go" data-sact="toMemo">移到活动备忘</button>';
+    else if(c.n>0){
+      var parts=[];if(c.m)parts.push("备忘 "+c.m);if(c.u)parts.push("计划外 "+c.u);
+      h='<span class="sb-count">已选 '+c.n+' 条'+(parts.length>1?("（"+parts.join(" · ")+"）"):"")+'</span><button class="sb-go" data-sact="merge">合并成一个待办</button>';
+      if(c.m===0)h+='<button class="sb-go alt" data-sact="toMemo">移到活动备忘</button>';
+    }
+    if(!h){bar.classList.remove("show");return;}
+    bar.innerHTML=h+'<button class="sb-x" data-sact="clear">取消</button>';
     bar.classList.add("show");
   }
-  function syncSelBtns(){var bs=document.querySelectorAll("[data-selmode]");for(var i=0;i<bs.length;i++){var l=bs[i].getAttribute("data-selmode"),on=!!selMode[l];bs[i].textContent=on?"完成选择":"选择";bs[i].classList.toggle("on",on);bs[i].classList.toggle("hidden",!on&&((l==="unplanned"&&locked())||capList(l).length===0));}}
+  function syncSelBtns(){var bs=document.querySelectorAll("[data-selmode]"),lk=locked();for(var i=0;i<bs.length;i++){var l=bs[i].getAttribute("data-selmode"),on=!!selMode[l];bs[i].innerHTML=on?"完成":(IC.select+"多选");bs[i].title=on?"退出多选":"一次选中好几条";bs[i].classList.toggle("on",on);bs[i].classList.toggle("hidden",!on&&((l!=="memo"&&lk)||capList(l).length===0));}document.body.classList.toggle("selecting",!!(selMode.todo||selMode.unplanned||selMode.memo));}
+  function setSelMode(l,on){
+    var k;
+    if(on){if(l==="todo"){for(k in capSel)delete capSel[k];selMode.unplanned=false;selMode.memo=false;}else{for(k in todoSel)delete todoSel[k];selMode.todo=false;}}
+    else{var a=capList(l);for(var j=0;j<a.length;j++){delete capSel[a[j].id];delete todoSel[a[j].id];}}
+    selMode[l]=on; lastAdd=null; hideUndoToast(); renderTodos(); renderCaps();
+  }
   function renderUnplanned(){var d=curDay(),h="",i; for(i=0;i<d.unplanned.length;i++)h+=capRow(d.unplanned[i],i,"unplanned","临时事项…"); document.getElementById("unplannedList").innerHTML=h; setCount("unplannedCount",d.unplanned.length); syncSelBtns(); renderSelectBar();}
   function renderMemo(){var a=state.memo,h="",i; for(i=0;i<a.length;i++)h+=capRow(a[i],i,"memo","备忘内容…"); if(!a.length)h='<li class="empty-hint">长期或重复的事放这里，不分天。点右侧的重复图标可以设成每天或每周。</li>'; document.getElementById("memoList").innerHTML=h; setCount("memoCount",a.length); syncSelBtns(); renderSelectBar();}
   function renderCaps(){renderMemo();renderUnplanned();growAll();}
@@ -933,7 +962,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var el=document.getElementById("catchup"), tk=todayKey(), sk=state.selectedDate;
     if(!catchupHidden&&sk<tk){
       document.getElementById("catchupText").innerHTML='你在看 <b>'+fmtMD(sk)+'</b>，今天是 <b>'+fmtMD(tk)+'</b>。';
-      document.getElementById("catchupGo").textContent=sealable(sk)?("封存 "+fmtMD(sk)+" 并开始今天"):"开始今天";
+      document.getElementById("catchupGo").textContent=sealable(sk)?("封存 "+fmtMD(sk)+" 并开始今天"):"回到今天";
       el.classList.remove("hidden");
     } else el.classList.add("hidden");
   }
@@ -973,6 +1002,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var sk=state.selectedDate;
     var ed=!!(state.days[sk]&&state.days[sk].ended);
     document.getElementById("dateText").innerHTML=esc(fmtMD(sk)+" "+weekday(sk))+(sk===todayKey()?'<span class="today-tag">今天</span>':'')+(ed?'<span class="today-tag">已结束</span>':'');
+    document.getElementById("dayNext").disabled=(sk>=todayKey());
     renderTodos(); renderUnplanned(); renderMemo(); renderRestZone();
     applyTheme(); applyVisibility(); renderHero(); renderPlanCheck(); renderCatchup(); renderLock(); syncSettings(); growAll();
   }
@@ -1001,9 +1031,11 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var item=e.target.closest(".item"); if(!item)return;
     var act=btn.getAttribute("data-act"),id=item.getAttribute("data-id");
     if(locked())return;
+    if(act==="tsel"){lastAdd=null;hideUndoToast();if(todoSel[id])delete todoSel[id];else todoSel[id]=true;renderTodos();return;}
+    if(act==="toMemo"){moveToMemo("todo",[id],null);return;}
     if(act==="reestCancel"){reEst=null;saveRender();return;}
     if(act==="reestOk"){var ipt=document.getElementById("reest-input");var rn=ipt?parseInt(ipt.value,10):0;if(!rn||rn<1)rn=1;var ract=reEst?reEst.action:null;reEst=null;var fr=findTask(id);if(fr)growEst(fr.t,rn);if(ract==="start"){save();startForTask(id);return;}if(ract==="pom"&&fr)addPom(fr.t);saveRender();paintTimer();return;}
-    if(act==="start"){var fs=findTask(id);if(fs&&needReEstimate(fs.t)){reEst={id:id,action:"start"};saveRender();return;}startForTask(id);return;}
+    if(act==="start"){var fs=findTask(id);if(fs&&fs.t.deferred)return;if(fs&&needReEstimate(fs.t)){reEst={id:id,action:"start"};saveRender();return;}startForTask(id);return;}
     var f=findTask(id); if(!f)return; var t=f.t;
     if(act==="pom"){if(needReEstimate(t)){reEst={id:id,action:"pom"};saveRender();return;}addPom(t);}
     else if(act==="int")t.events.push({t:"int"});
@@ -1031,7 +1063,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     else if(act==="subtext"){var sid=inp.getAttribute("data-sub"),sl=f.t.sub||[],sk;for(sk=0;sk<sl.length;sk++){if(sl[sk].id===sid){sl[sk].text=inp.value;break;}}save();}
   }
 
-  function capList(list){return list==="memo"?state.memo:curDay().unplanned;}
+  function capList(list){return list==="todo"?curDay().todos:(list==="memo"?state.memo:curDay().unplanned);}
   function onCapClick(e){
     if(e.target.closest("input,textarea,select"))return;
     var btn=e.target.closest("[data-cact]"); if(!btn)return;
@@ -1040,7 +1072,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     if(locked()&&(act==="promote"||list==="unplanned"))return;
     var arr=capList(list),idx=-1,i; for(i=0;i<arr.length;i++)if(arr[i].id===id){idx=i;break;} if(idx<0)return;
     if(act==="del"){var ci=arr.splice(idx,1)[0],cday=state.selectedDate;if(capSel[id])delete capSel[id];if(recurEdit===id)recurEdit=null;lastAdd=null;saveRender();showUndo("已删除「"+shortText(ci.text)+"」",function(){var a2=(list==="memo")?state.memo:((state.days[cday]||(state.days[cday]={todos:[],unplanned:[],prevOverride:null})).unplanned);a2.splice(Math.min(idx,a2.length),0,ci);saveRender();});}
-    else if(act==="promote"){var pit=arr[idx],ptask=newTask(pit.text);if(list==="memo"&&isRecurring(pit))ptask.recurSrc=pit.id;curDay().todos.push(ptask);var prem=[];if(list==="unplanned"||(list==="memo"&&!isRecurring(pit))){arr.splice(idx,1);prem=[{l:list,it:pit}];}lastAdd={day:state.selectedDate,taskId:ptask.id,removed:prem};saveRender();showUndoToast();}
+    else if(act==="promote"){promoteAt(list,id,null);}
     else if(act==="capdone"){var cd=arr[idx];if(list==="memo"&&isRecurring(cd)){setHabitDone(cd.id,!inList(cd.recurDone,state.selectedDate));}else{cd.done=!cd.done;if(cd.done)cd.doneOn=todayKey();else delete cd.doneOn;}saveRender();}
     else if(act==="recur"){if(recurEdit===id){recurEdit=null;}else{recurEdit=id;recurCalMonth=monthKey(state.selectedDate);}renderCaps();}
     else if(act==="recurMode"){var rm=btn.getAttribute("data-mode"),it=arr[idx];if(rm==="none"){it.recur=null;it.recurAdd=[];it.recurSkip=[];it.recurStart=null;it.recurDone=[];}else{if(rm==="daily")it.recur={type:"daily"};else if(rm==="everyN")it.recur={type:"everyN",n:(it.recur&&it.recur.n)||2};else if(rm==="weekly")it.recur={type:"weekly",days:(it.recur&&it.recur.days)||[]};if(!it.recurStart)it.recurStart=state.selectedDate;it.recurAdd=it.recurAdd||[];it.recurSkip=it.recurSkip||[];it.recurDone=it.recurDone||[];}save();renderCaps();}
@@ -1074,10 +1106,10 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     state.memo=keepM;
     for(i=0;i<picked.length;i++)delete capSel[picked[i].id];
     lastAdd={day:state.selectedDate,taskId:task.id,removed:moved};
-    selMode.unplanned=false;selMode.memo=false;
+    selMode.unplanned=false;selMode.memo=false;selMode.todo=false;
     saveRender();showUndoToast();
   }
-  function clearSel(){for(var k in capSel)delete capSel[k];selMode.unplanned=false;selMode.memo=false;renderCaps();}
+  function clearSel(){var k;for(k in capSel)delete capSel[k];for(k in todoSel)delete todoSel[k];selMode.todo=false;selMode.unplanned=false;selMode.memo=false;renderTodos();renderCaps();}
   function undoLastAdd(){
     if(!lastAdd)return;
     var day=state.days[lastAdd.day],i;
@@ -1097,23 +1129,109 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
   function showUndoToast(){showUndo("已加入今日待办",undoLastAdd,lastAdd&&lastAdd.taskId);}
   function hideUndoToast(){var t=document.getElementById("undoToast"); if(t)t.classList.remove("show"); if(undoTimer){clearTimeout(undoTimer);undoTimer=null;} undoFn=null;}
-  function clearDropMarks(){var ds=document.querySelectorAll("#todoList .drop-before,#todoList .drop-after"),i;for(i=0;i<ds.length;i++){ds[i].classList.remove("drop-before");ds[i].classList.remove("drop-after");}}
-  function cleanupDrag(){dragId=null;var dn=document.querySelectorAll("#todoList .dragging"),i;for(i=0;i<dn.length;i++)dn[i].classList.remove("dragging");clearDropMarks();}
-  function onTodoDragStart(e){var g=e.target.closest&&e.target.closest("[data-grip]");if(!g){if(e.preventDefault)e.preventDefault();return;}dragId=g.getAttribute("data-grip");try{e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",dragId);}catch(_){}var row=g.closest(".item");if(row){row.classList.add("dragging");try{e.dataTransfer.setDragImage(row,24,18);}catch(_){}}}
-  function onTodoDragOver(e){if(!dragId)return;e.preventDefault();try{e.dataTransfer.dropEffect="move";}catch(_){}var row=e.target.closest&&e.target.closest(".item");clearDropMarks();if(row&&row.getAttribute("data-id")!==dragId){var r=row.getBoundingClientRect();row.classList.add((e.clientY-r.top)>r.height/2?"drop-after":"drop-before");}}
-  function onTodoDrop(e){if(!dragId)return;if(locked()){cleanupDrag();return;}e.preventDefault();var arr=curDay().todos,i,from=-1;for(i=0;i<arr.length;i++)if(arr[i].id===dragId){from=i;break;}if(from<0){cleanupDrag();return;}var row=e.target.closest&&e.target.closest(".item");if(!row||row.getAttribute("data-id")===dragId){cleanupDrag();return;}var toId=row.getAttribute("data-id");var r=row.getBoundingClientRect();var after=(e.clientY-r.top)>r.height/2;var moved=arr.splice(from,1)[0];var to=-1;for(i=0;i<arr.length;i++)if(arr[i].id===toId){to=i;break;}if(to<0){arr.splice(from,0,moved);cleanupDrag();return;}arr.splice(after?to+1:to,0,moved);cleanupDrag();saveRender();}
-  function onTodoDragEnd(e){cleanupDrag();}
-  var capDrag=null;
-  function capClearMarks(){var ds=document.querySelectorAll("#unplannedList .drop-before,#unplannedList .drop-after,#memoList .drop-before,#memoList .drop-after"),i;for(i=0;i<ds.length;i++){ds[i].classList.remove("drop-before");ds[i].classList.remove("drop-after");}}
-  function capCleanup(){capDrag=null;var dn=document.querySelectorAll("#unplannedList .dragging,#memoList .dragging"),i;for(i=0;i<dn.length;i++)dn[i].classList.remove("dragging");capClearMarks();}
-  function onCapDragStart(e){var g=e.target.closest&&e.target.closest("[data-grip]");if(!g){if(e.preventDefault)e.preventDefault();return;}var row=g.closest(".item");if(!row)return;var lst=row.getAttribute("data-list");if(lst==="unplanned"&&locked()){if(e.preventDefault)e.preventDefault();return;}capDrag={id:row.getAttribute("data-id"),list:lst};try{e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",capDrag.id);}catch(_){}row.classList.add("dragging");try{e.dataTransfer.setDragImage(row,24,18);}catch(_){}}
-  function onCapDragOver(e){if(!capDrag)return;var row=e.target.closest&&e.target.closest(".item");if(row&&row.getAttribute("data-list")!==capDrag.list)return;e.preventDefault();try{e.dataTransfer.dropEffect="move";}catch(_){}capClearMarks();if(row&&row.getAttribute("data-id")!==capDrag.id){var r=row.getBoundingClientRect();row.classList.add((e.clientY-r.top)>r.height/2?"drop-after":"drop-before");}}
-  function onCapDrop(e){if(!capDrag)return;var row=e.target.closest&&e.target.closest(".item");if(!row||row.getAttribute("data-list")!==capDrag.list){capCleanup();return;}e.preventDefault();if(capDrag.list==="unplanned"&&locked()){capCleanup();return;}var arr=capList(capDrag.list),i,from=-1;for(i=0;i<arr.length;i++)if(arr[i].id===capDrag.id){from=i;break;}var toId=row.getAttribute("data-id");if(from<0||toId===capDrag.id){capCleanup();return;}var r=row.getBoundingClientRect(),after=(e.clientY-r.top)>r.height/2,moved=arr.splice(from,1)[0],to=-1;for(i=0;i<arr.length;i++)if(arr[i].id===toId){to=i;break;}if(to<0){arr.splice(from,0,moved);capCleanup();return;}arr.splice(after?to+1:to,0,moved);capCleanup();saveRender();}
-  function onCapDragEnd(e){capCleanup();}
+  function snapshot(){return {dk:state.selectedDate,day:clone(curDay()),memo:clone(state.memo)};}
+  function restoreSnap(sn){state.days[sn.dk]=sn.day;state.memo=sn.memo;saveRender();}
+  function memoById(id){for(var i=0;i<state.memo.length;i++)if(state.memo[i].id===id)return state.memo[i];return null;}
+  function promoteAt(list,id,at){
+    if(locked())return;
+    var arr=capList(list),idx=-1,i;for(i=0;i<arr.length;i++)if(arr[i].id===id){idx=i;break;} if(idx<0)return;
+    var pit=arr[idx],ptask=newTask(pit.text),todos=curDay().todos;
+    if(list==="memo"&&isRecurring(pit))ptask.recurSrc=pit.id;
+    todos.splice((at==null||at<0||at>todos.length)?todos.length:at,0,ptask);
+    var prem=[];
+    if(list==="unplanned"||(list==="memo"&&!isRecurring(pit))){arr.splice(idx,1);prem=[{l:list,it:pit}];delete capSel[pit.id];if(recurEdit===pit.id)recurEdit=null;}
+    lastAdd={day:state.selectedDate,taskId:ptask.id,removed:prem};
+    saveRender();showUndoToast();
+  }
+  // move today's todos or unplanned items back to the activity memo.
+  // a todo that already has pomodoros stays on today's page (greyed) so the day's record is never lost.
+  function moveToMemo(src,ids,at){
+    if(locked())return 0;
+    var sn=snapshot(),d=curDay(),arr=(src==="todo")?d.todos:d.unplanned,ins=[],n=0,first="",i,j;
+    for(j=0;j<ids.length;j++){
+      var idx=-1;for(i=0;i<arr.length;i++)if(arr[i].id===ids[j]){idx=i;break;}
+      if(idx<0)continue;
+      var it=arr[idx];
+      if(src==="todo"){
+        if(it.deferred||(T.phase==="work"&&T.taskId===it.id))continue;
+        var left=[];(it.sub||[]).forEach(function(sb){var tx=String(sb.text||"").trim();if(!sb.done&&tx)left.push(tx);});
+        if(!(it.recurSrc&&memoById(it.recurSrc)))ins.push(newCap(it.text,left.length?("未完成子项："+left.join("、")):""));
+        if(completed(it)>0){it.deferred=true;}
+        else{arr.splice(idx,1);if(reEst&&reEst.id===it.id)reEst=null;}
+        delete expanded[it.id]; delete todoSel[it.id];
+      }else{
+        arr.splice(idx,1); delete capSel[it.id];
+        if(it.done&&!it.doneOn)it.doneOn=todayKey();
+        ins.push(it);
+      }
+      if(!n)first=it.text; n++;
+    }
+    if(!n)return 0;
+    var pos=(at==null||at<0||at>state.memo.length)?state.memo.length:at;
+    Array.prototype.splice.apply(state.memo,[pos,0].concat(ins));
+    lastAdd=null; saveRender();
+    showUndo(n>1?("已移到活动备忘 "+n+" 条"):("已移到活动备忘「"+shortText(first)+"」"),function(){restoreSnap(sn);});
+    return n;
+  }
+
+  // ---- drag: reorder inside a list, or carry an item to another list ----
+  var DROPS={todo:{memo:1},unplanned:{memo:1,todo:1},memo:{todo:1}};
+  function dropTarget(el){var p=el&&el.closest&&el.closest("[data-droplist]");return p?{panel:p,list:p.getAttribute("data-droplist")}:null;}
+  function canDrop(to){
+    if(!drag||!to)return false;
+    if(to===drag.list)return drag.list==="memo"||!locked();
+    if(!DROPS[drag.list][to]||!drag.cross||locked())return false;
+    return true;
+  }
+  function clearDragMarks(){var ds=document.querySelectorAll(".drop-before,.drop-after,.drop-ok"),i;for(i=0;i<ds.length;i++)ds[i].classList.remove("drop-before","drop-after","drop-ok");}
+  function endDrag(){drag=null;var dn=document.querySelectorAll(".item.dragging"),i;for(i=0;i<dn.length;i++)dn[i].classList.remove("dragging");clearDragMarks();}
+  function dropRow(e,tg){var row=e.target.closest&&e.target.closest(".item[data-id]");return (row&&tg.panel.contains(row)&&row.getAttribute("data-id")!==drag.id)?row:null;}
+  function onDragStart(e){
+    var g=e.target.closest&&e.target.closest("[data-grip]"); if(!g)return;
+    var row=g.closest(".item"); if(!row)return;
+    var list=row.getAttribute("data-list"),id=row.getAttribute("data-id");
+    if(list!=="memo"&&locked()){e.preventDefault();return;}
+    var cross=true;
+    if(list==="todo"){var f=findTask(id);cross=!!f&&!f.t.deferred&&!(T.phase==="work"&&T.taskId===id);}
+    drag={id:id,list:list,cross:cross};
+    try{e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",id);}catch(_){}
+    row.classList.add("dragging");
+    try{e.dataTransfer.setDragImage(row,24,18);}catch(_){}
+  }
+  function onDragOver(e){
+    if(!drag)return;
+    var tg=dropTarget(e.target);
+    clearDragMarks();
+    if(!tg||!canDrop(tg.list))return;
+    e.preventDefault();
+    try{e.dataTransfer.dropEffect="move";}catch(_){}
+    if(tg.list!==drag.list)tg.panel.classList.add("drop-ok");
+    var row=dropRow(e,tg);
+    if(row){var r=row.getBoundingClientRect();row.classList.add((e.clientY-r.top)>r.height/2?"drop-after":"drop-before");}
+  }
+  function onDrop(e){
+    if(!drag)return;
+    var tg=dropTarget(e.target);
+    if(!tg||!canDrop(tg.list)){endDrag();return;}
+    e.preventDefault();
+    var dr=drag,row=dropRow(e,tg),tarr=capList(tg.list),at=null,i;
+    if(row){var tid=row.getAttribute("data-id"),r=row.getBoundingClientRect(),after=(e.clientY-r.top)>r.height/2;for(i=0;i<tarr.length;i++)if(tarr[i].id===tid){at=after?i+1:i;break;}}
+    endDrag();
+    if(tg.list===dr.list){
+      if(at==null)return;
+      var from=-1;for(i=0;i<tarr.length;i++)if(tarr[i].id===dr.id){from=i;break;}
+      if(from<0)return;
+      var moved=tarr.splice(from,1)[0]; if(from<at)at--;
+      tarr.splice(at,0,moved); saveRender(); return;
+    }
+    if(tg.list==="memo")moveToMemo(dr.list,[dr.id],at);
+    else promoteAt(dr.list,dr.id,at);
+  }
   function onSelectBar(e){
     var b=e.target.closest&&e.target.closest("[data-sact]"); if(!b)return;
     var a=b.getAttribute("data-sact");
     if(a==="merge")mergeAll(); else if(a==="clear")clearSel();
+    else if(a==="toMemo"){var c=selCounts(),src=c.t>0?"todo":"unplanned",arr=capList(src),sel=src==="todo"?todoSel:capSel,ids=[];for(var i=0;i<arr.length;i++)if(sel[arr[i].id])ids.push(arr[i].id);selMode.todo=false;selMode.unplanned=false;selMode.memo=false;var k;for(k in todoSel)delete todoSel[k];for(k in capSel)delete capSel[k];if(!moveToMemo(src,ids,null)){renderTodos();renderCaps();}}
   }
 
   function addItem(kind,val){val=(val||"").trim(); if(!val)return; if(kind!=="memo"&&locked())return; lastAdd=null;hideUndoToast();
@@ -1242,7 +1360,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   // ---- calendar ----
   function openCal(){var p=state.selectedDate.split("-");calMonth=p[0]+"-"+p[1];renderCal();document.getElementById("calOverlay").classList.add("open");}
   function closeCal(){document.getElementById("calOverlay").classList.remove("open");}
-  function calShift(n){var p=calMonth.split("-");var dt=new Date(+p[0],+p[1]-1+n,1);calMonth=dt.getFullYear()+"-"+pad(dt.getMonth()+1);renderCal();}
+  function calShift(n){var p=calMonth.split("-");var dt=new Date(+p[0],+p[1]-1+n,1),nm=dt.getFullYear()+"-"+pad(dt.getMonth()+1);if(nm>todayKey().slice(0,7))return;calMonth=nm;renderCal();}
   function renderCal(){
     var p=calMonth.split("-"),y=+p[0],m=+p[1];
     document.getElementById("calMonthLabel").textContent=y+" 年 "+m+" 月";
@@ -1252,20 +1370,26 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     for(var b=0;b<first;b++)h+='<div class="cal-cell empty"></div>';
     for(var d=1;d<=dim;d++){
       var key=y+"-"+pad(m)+"-"+pad(d), cnt=state.days[key]?dayTotal(state.days[key]):0;
-      var cls="cal-cell"+(key===state.selectedDate?" sel":"")+(key===tk?" today":"");
-      h+='<div class="'+cls+'" data-day="'+key+'"><div>'+d+'</div>'+(cnt>0?'<div class="cnt">'+cnt+'</div>':'')+'</div>';
+      var fut=key>tk, cls="cal-cell"+(key===state.selectedDate?" sel":"")+(key===tk?" today":"")+(fut?" future":"");
+      h+='<div class="'+cls+'"'+(fut?'':' data-day="'+key+'"')+'><div>'+d+'</div>'+(cnt>0?'<div class="cnt">'+cnt+'</div>':'')+'</div>';
     }
     document.getElementById("calGrid").innerHTML=h;
+    document.getElementById("calNext").disabled=(calMonth>=tk.slice(0,7));
   }
 
   function endDay(){
     if(curDay().ended)return;
-    if(!confirm("确定要结束「"+state.selectedDate+"」吗？结束后，这一天将锁定。"))return;
+    if(!confirm("结束「"+fmtMD(state.selectedDate)+"」？\n这一天会锁定，需要时可以重新打开。"))return;
     if(T.phase==="work")abortCurrent();
     curDay().ended=true;
-    var nx=addDays(state.selectedDate,1),tk=todayKey();
-    state.selectedDate=(nx>tk)?nx:tk;
     catchupHidden=false;saveRender();
+  }
+  // never show a future day; when the page we were on is finished (or empty) and a new day has begun, start the new day
+  function settleDate(){
+    var tk=todayKey(),sk=state.selectedDate;
+    if(!sk||sk>tk){state.selectedDate=tk;return true;}
+    if(sk<tk&&!sealable(sk)){state.selectedDate=tk;return true;}
+    return false;
   }
   function goToday(){var sk=state.selectedDate;if(sk<todayKey()&&sealable(sk)){if(T.phase==="work")abortCurrent();state.days[sk].ended=true;}state.selectedDate=todayKey();catchupHidden=false;saveRender();}
 
@@ -1288,7 +1412,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       if(!confirm("导入会用这份备份替换现在的全部记录。\n现在的记录会先在浏览器里另存一份。继续吗？"))return;
       try{var cur=localStorage.getItem(KEY);if(cur)localStorage.setItem(KEY+"_before_import",cur);}catch(e){}
       if(T.phase==="work")abortCurrent();
-      state=s; expanded={}; capSel={}; selMode={unplanned:false,memo:false}; lastAdd=null; hideUndoToast();
+      state=s; settleDate(); expanded={}; capSel={}; todoSel={}; selMode={todo:false,unplanned:false,memo:false}; lastAdd=null; hideUndoToast();
       save(); renderTimerChrome(); renderAll(); paintTimer();
       alert("导入成功。");
     };
@@ -1296,7 +1420,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
 
   function init(){
-    load(); restoreTimer(readTimerRaw(),true); renderTimerChrome(); paintTimer(); renderAll();
+    load(); if(settleDate())save(); restoreTimer(readTimerRaw(),true); renderTimerChrome(); paintTimer(); renderAll();
     if(loadProblem)setTimeout(function(){alert("读取本地记录时出错，记录可能损坏了。\n原始数据没有删除，已在浏览器里另存一份（"+loadProblem+"）。现在先显示一张空表。");},300);
 
     var adders=document.querySelectorAll("[data-add]");
@@ -1304,8 +1428,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     ["todo","unplanned","memo"].forEach(function(k){var inp=document.getElementById(k+"Input");if(inp)inp.addEventListener("keydown",function(e){if(e.key==="Enter"){addItem(k,inp.value);inp.value="";}});});
 
     var tl=document.getElementById("todoList"); tl.addEventListener("click",onTodoClick); tl.addEventListener("input",onTodoInput); tl.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target&&e.target.id==="reest-input"){e.preventDefault();var ok=document.querySelector(".reest-ok");if(ok)ok.click();}});
-    tl.addEventListener("dragstart",onTodoDragStart); tl.addEventListener("dragover",onTodoDragOver); tl.addEventListener("drop",onTodoDrop); tl.addEventListener("dragend",onTodoDragEnd);
-    ["unplannedList","memoList"].forEach(function(idd){var el=document.getElementById(idd);el.addEventListener("click",onCapClick);el.addEventListener("input",onCapInput);el.addEventListener("dragstart",onCapDragStart);el.addEventListener("dragover",onCapDragOver);el.addEventListener("drop",onCapDrop);el.addEventListener("dragend",onCapDragEnd);});
+    document.addEventListener("dragstart",onDragStart); document.addEventListener("dragover",onDragOver); document.addEventListener("drop",onDrop); document.addEventListener("dragend",endDrag);
+    ["unplannedList","memoList"].forEach(function(idd){var el=document.getElementById(idd);el.addEventListener("click",onCapClick);el.addEventListener("input",onCapInput);});
     document.getElementById("selectBar").addEventListener("click",onSelectBar);
     document.getElementById("undoToast").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-utact]");if(!b)return;var f=undoFn;hideUndoToast();if(f)f();});
     document.getElementById("restZone").addEventListener("click",onTimerBtn);
@@ -1315,10 +1439,10 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     ot.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();ot.blur();}else if(e.key==="Escape"){ot.setAttribute("data-cancel","1");ot.blur();}});
     ot.addEventListener("blur",function(){if(ot.getAttribute("data-cancel")){ot.removeAttribute("data-cancel");renderHero();return;}commitTotal();});
     document.getElementById("dayPrev").addEventListener("click",function(){state.selectedDate=addDays(state.selectedDate,-1);catchupHidden=false;saveRender();});
-    document.getElementById("dayNext").addEventListener("click",function(){state.selectedDate=addDays(state.selectedDate,1);catchupHidden=false;saveRender();});
+    document.getElementById("dayNext").addEventListener("click",function(){var nx=addDays(state.selectedDate,1);if(nx>todayKey())return;state.selectedDate=nx;catchupHidden=false;saveRender();});
     document.getElementById("restZone").addEventListener("input",function(e){var k=e.target&&e.target.getAttribute&&e.target.getAttribute("data-tlive");if(!k)return;if(k==="intention")T.intention=e.target.value;else T.review=e.target.value;autoGrow(e.target);saveTimer();});
     var sms=document.querySelectorAll("[data-selmode]");
-    for(var si=0;si<sms.length;si++)(function(b){b.addEventListener("click",function(){var l=b.getAttribute("data-selmode");selMode[l]=!selMode[l];if(!selMode[l]){var a=capList(l);for(var j=0;j<a.length;j++)delete capSel[a[j].id];}lastAdd=null;hideUndoToast();renderCaps();});})(sms[si]);
+    for(var si=0;si<sms.length;si++)(function(b){b.addEventListener("click",function(){var l=b.getAttribute("data-selmode");setSelMode(l,!selMode[l]);});})(sms[si]);
 
     document.getElementById("dateBox").addEventListener("click",openCal);
     document.getElementById("calBtn").addEventListener("click",openCal);
@@ -1326,7 +1450,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     document.getElementById("calNext").addEventListener("click",function(){calShift(1);});
     document.getElementById("calToday").addEventListener("click",function(){state.selectedDate=todayKey();catchupHidden=false;saveRender();closeCal();});
     document.getElementById("calClose").addEventListener("click",closeCal);
-    document.getElementById("calGrid").addEventListener("click",function(e){var c=e.target.closest("[data-day]");if(!c)return;state.selectedDate=c.getAttribute("data-day");catchupHidden=false;saveRender();closeCal();});
+    document.getElementById("calGrid").addEventListener("click",function(e){var c=e.target.closest("[data-day]");if(!c||c.getAttribute("data-day")>todayKey())return;state.selectedDate=c.getAttribute("data-day");catchupHidden=false;saveRender();closeCal();});
     document.getElementById("calOverlay").addEventListener("click",function(e){if(e.target===this)closeCal();});
 
     document.getElementById("endDayBtn").addEventListener("click",endDay);
@@ -1386,7 +1510,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     document.addEventListener("visibilitychange",function(){
       if(document.hidden)return;
       if(T.running&&T.target-Date.now()<=0){completeMode();return;}
-      if(todayKey()!==lastSeenDay){lastSeenDay=todayKey();renderAll();}else paintTimer();
+      if(todayKey()!==lastSeenDay){lastSeenDay=todayKey();if(settleDate())save();renderAll();}else paintTimer();
     });
 
     window.addEventListener("resize",growAll);
