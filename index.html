@@ -145,7 +145,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .item{position:relative;border-bottom:1px solid var(--line-soft);}
   .item:last-child{border-bottom:none;}
   .row{display:flex;align-items:center;gap:8px;padding:6px 0;min-height:42px;}
-  .num{flex:none;width:18px;height:18px;display:flex;align-items:center;justify-content:flex-end;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;user-select:none;-webkit-user-select:none;}
+  .num{flex:none;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;user-select:none;-webkit-user-select:none;}
   .num[draggable]{cursor:grab;}
   .num.can{cursor:pointer;}
   .num .so{display:none;flex:none;width:16px;height:16px;border:1.5px solid var(--muted);border-radius:50%;align-items:center;justify-content:center;}
@@ -185,6 +185,15 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   .item.dragging{opacity:.4;}
   .item.drop-before{box-shadow:inset 0 2px 0 var(--ink);}
   .item.drop-after{box-shadow:inset 0 -2px 0 var(--ink);}
+  .item.drop-into{box-shadow:inset 0 0 0 2px var(--ink);border-radius:6px;background:var(--hover);}
+  body.picking #todoList .item:not(.deferred){cursor:pointer;border-radius:6px;outline:1px dashed var(--line2);outline-offset:-2px;}
+  body.picking #todoList .item:not(.deferred) > *{pointer-events:none;}
+  @media (hover:hover){body.picking #todoList .item:not(.deferred):hover{background:var(--hover);outline-color:var(--ink);}}
+  body.picking .dayend{visibility:hidden;}
+  .panel.ro .list{pointer-events:none;}
+  .panel.ro .addrow{display:none;}
+  .ro-hint{font-size:12px;color:var(--muted);margin:-4px 0 6px;}
+  .fb-notes > .btn{align-self:flex-start;}
   .panel.drop-ok{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink);}
   .ck-sp{flex:none;width:18px;height:18px;}
   .item.deferred > .row .task-text{color:var(--muted);}
@@ -406,6 +415,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     .panel{padding:4px 12px 12px;}
     .select-bar{flex-wrap:wrap;justify-content:center;row-gap:8px;padding:10px 12px;}
     .sb-count{flex:1 1 100%;text-align:center;}
+    #catchupText{flex:1 1 100%;}
+    #catchup .cu-btn{margin-left:auto;}
   }
   @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}
 </style>
@@ -444,7 +455,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   <h3>今日可用番茄（P = 可自由支配小时数 H × 系数 k）</h3>
   <div class="plan-row">
     <label>H 小时<input type="number" min="0" step="0.5" id="planH"></label>
-    <label>k 系数（1~2）<input type="number" min="1" max="2" step="0.1" id="planK"></label>
+    <label>k 系数（1～2）<input type="number" min="1" max="2" step="0.1" id="planK"></label>
     <div class="plan-out">今天大约能做 <b id="planP">0</b> 个番茄</div>
   </div>
   <div class="plan-check" id="planCheck"></div>
@@ -474,6 +485,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   <aside class="col" id="memoCol">
     <section class="panel cap memo" id="memoBox" data-droplist="memo">
       <div class="sec-h"><span>活动备忘</span><span class="sec-n" id="memoCount"></span></div>
+      <div class="ro-hint hidden" id="memoRoHint">这一天结束时的活动备忘，只能查看。</div>
       <ul class="list" id="memoList"></ul>
       <div class="addrow">
         <input type="text" id="memoInput" placeholder="长期或重复的事">
@@ -505,7 +517,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-label="设置">
     <h2>设置</h2>
-    <p class="sub">App 默认极简（开始番茄 + 记号）。下面这些都是可选的。</p>
+    <p class="sub">App 默认极简，只有开始番茄和记号。下面这些都是可选的。</p>
 
     <div class="set-group first">
       <h3>外观</h3>
@@ -514,12 +526,12 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
 
     <div class="set-group">
       <h3>记录习惯</h3>
-      <div class="toggle"><span class="lab">每个番茄默认带意图/回顾<small>开了之后，做完一个番茄会自动展开让你写；关着就只记号，想写时点「⋯」</small></span><label class="switch"><input type="checkbox" data-tog="ceremony"><span class="slider"></span></label></div>
+      <div class="toggle"><span class="lab">每个番茄默认带意图和回顾<small>开了之后，做完一个番茄会自动展开让你写；关着就只记号，想写时点「⋯」</small></span><label class="switch"><input type="checkbox" data-tog="ceremony"><span class="slider"></span></label></div>
     </div>
 
     <div class="set-group">
       <h3>提醒</h3>
-      <div class="toggle"><span class="lab">番茄/休息结束时弹系统桌面通知<small>切到别的窗口也能看到。打开时浏览器会问一次权限。不开就只有声音+闪烁。</small></span><label class="switch"><input type="checkbox" data-tog="notify"><span class="slider"></span></label></div>
+      <div class="toggle"><span class="lab">番茄或休息结束时弹系统桌面通知<small>切到别的窗口也能看到。打开时浏览器会问一次权限。不开就只有声音和闪烁。</small></span><label class="switch"><input type="checkbox" data-tog="notify"><span class="slider"></span></label></div>
     </div>
 
     <div class="set-group">
@@ -575,8 +587,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   <div class="modal guide" role="dialog" aria-modal="true" aria-label="使用指南">
     <h2>番茄工作法记录表</h2>
     <p class="sub">一张会计时的记录纸。三分钟看懂：</p>
-    <div class="g-sec"><b>① 核心循环</b>添加待办 → 点 ⋯ 估几个番茄（□）→ 点 ▶ 开始专注 25 分钟 → 做完自动记一个 <span class="gx">×</span>；中途自己分心记 <span class="gi">’</span>，被人打断记 <span class="gi">–</span>。估少了它会让你「再估」（○ 二估、△ 三估）。事情做完，勾掉左边的方框；一天忙完点页面底部的「结束这一天」封存，第二天打开会自动翻到新的一天。</div>
-    <div class="g-sec"><b>② 三个清单的分工</b>今日待办＝今天要做的；计划外紧急＝干活时冒出来的事，先记下别打断番茄，回头再排；活动备忘＝长期或重复的事，点右侧的重复图标可设每天 / 每周重复，重复项直接勾左边方框就是当天打卡；一次性的事勾掉后，第二天会自动清走。按住序号可以拖动排序，也可以拖到别的清单：待办、计划外拖进备忘，备忘、计划外拖进今日待办。点一下序号可以选中，再点别的序号可以一起选，选好后在底部操作条里合并或挪走。</div>
+    <div class="g-sec"><b>① 核心循环</b>添加待办 → 点 ⋯ 估几个番茄（□）→ 点 ▶ 开始专注 25 分钟 → 做完自动记一个 <span class="gx">×</span>；中途自己分心记 <span class="gi">’</span>，被人打断记 <span class="gi">–</span>。估少了它会让你「再估」（○ 二估、△ 三估）。事情做完，勾掉左边的方框；一天忙完点页面底部的「结束这一天」收工。过了 12 点，顶上会提示你翻到新的一天；什么时候翻由你决定。每一天都是记事本里单独的一页，翻回去看到的就是那天的样子。</div>
+    <div class="g-sec"><b>② 三个清单的分工</b>今日待办＝今天要做的；计划外紧急＝干活时冒出来的事，先记下别打断番茄，回头再排；活动备忘＝长期或重复的事，点右侧的重复图标可设每天或每周重复，重复项直接勾左边方框就是当天打卡；没做完的事，翻到新的一天时会自动抄到新的一页；勾掉的留在当天那一页，不再往后抄。按住序号可以拖动排序，也可以拖到别的清单：待办、计划外拖进备忘，备忘、计划外拖进今日待办。点一下序号可以选中，再点别的序号可以一起选，选好后在底部操作条里合并、并入已有待办或挪走。</div>
     <div class="g-sec"><b>③ 数据在哪</b>记录只存在这台设备的这个浏览器里，不上传任何服务器。换设备或清理浏览器前，先到设置里「导出备份」，再在新地方「导入」即可接上。</div>
     <div class="modal-foot g-foot"><button class="dbtn" id="guideDemo">载入示例看看</button><button class="tbtn go" id="guideStart">开始使用</button></div>
   </div>
@@ -617,7 +629,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     return {
       v:3, guideSeen:false,
       settings:{theme:"auto",ceremony:false,notify:false,showUnplanned:true,showMemo:true,showPlanning:false,dur:clone(DEFAULT_DUR),planH:0,planK:1.5},
-      selectedDate:tk, startOffset:0, days:{},
+      selectedDate:tk, memoDay:tk, startOffset:0, days:{},
       memo:[]
     };
   }
@@ -627,13 +639,13 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var tk=state.selectedDate,d=curDay();
     var t1=newTask("每做完一个番茄钟记一个 ×；’ 是自己分心，– 被别人打断"); t1.est=[2,0,0]; t1.events=[pom(),{t:"int"},pom(),{t:"ext"}];
     var t2=newTask("估不够？做完会让你「再估」——于是有 ○ 二估、△ 三估（□ 初估）"); t2.est=[1,1,0]; t2.events=[pom(),pom()];
-    var t3=newTask("做完勾掉左边方框收工；整天忙完点「结束这一天」封存"); t3.est=[1,0,0]; t3.events=[pom()]; t3.done=true;
+    var t3=newTask("做完勾掉左边方框；整天忙完点「结束这一天」收工"); t3.est=[1,0,0]; t3.events=[pom()]; t3.done=true;
     var t4=newTask("轮到你了：在下面加一条要做的事，点 ⋯ 估几个番茄，再点 ▶ 开始");
     d.todos.push(t1,t2,t3,t4);
     d.unplanned.push(newCap("同事临时来问的一件事","专注时冒出别的事，先记这里、别打断手头番茄。回头点下面「＋加入今日待办」就能排进今天。"));
     var m1=newCap("每天整理 5 分钟桌面","点右侧的重复图标可设成每天、每周几、每 N 天重复；直接勾左边方框就是今天打卡。");
     m1.recur={type:"daily"}; m1.recurStart=tk; m1.recurAdd=[]; m1.recurSkip=[]; m1.recurDone=[];
-    var m2=newCap("读完《番茄工作法图解》","长期、跨天的事放这里，不分天。准备好了点「＋加入今日待办」。");
+    var m2=newCap("读完《番茄工作法图解》","长期、跨天的事放这里，没做完会自动抄到第二天。准备好了点「＋加入今日待办」。");
     var m3=newCap("看懂示例了就从这里重新开始","右上角设置 →「清空全部」，把这些示例一次清掉，从你自己的任务开始。");
     state.memo.push(m1,m2,m3);
     saveRender();
@@ -641,7 +653,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   // the demo only goes into an empty record, never on top of real data
   function canDemo(){if(state.memo.length||locked())return false;for(var k in state.days){if(!state.days.hasOwnProperty(k))continue;var d=state.days[k];if(d.todos.length||d.unplanned.length)return false;}return true;}
 
-  var state, expanded={}, calMonth=null, catchupHidden=false, pendingRest=false, reEst=null, capSel={}, undoTimer=null, recurEdit=null, recurCalMonth=null, todoSel={}, drag=null, renderedDay=null, undoFn=null, loadProblem=null, loadRaw=null, saveWarned=false;
+  var state, expanded={}, calMonth=null, catchupHidden=false, pendingRest=false, reEst=null, capSel={}, undoTimer=null, recurEdit=null, recurCalMonth=null, todoSel={}, drag=null, renderedDay=null, undoFn=null, loadProblem=null, loadRaw=null, saveWarned=false, pickInto=false, pendingNext=false, lastMemoJson=null, lastSavedRaw=null;
 
   // every record that enters the page (load, import, another tab) passes through here:
   // wrong types are repaired and junk entries dropped one by one, so one bad entry never blanks the whole record
@@ -665,8 +677,11 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       if(t.note!=null)t.note=str(t.note);
       return t;
     }
-    function normCap(c){
-      fixId(c); c.text=str(c.text); c.note=str(c.note);
+    function normCap(c){return capFix(c,false);}
+    function capFix(c,loose){
+      if(loose){if(typeof c.id!=="string"||!IDRX.test(c.id))c.id=uid();}else fixId(c);
+      c.text=str(c.text); c.note=str(c.note);
+      if(!isDay(c.doneDay))delete c.doneDay;
       if(c.done)c.done=true; else delete c.done;
       if(!isDay(c.doneOn))delete c.doneOn;
       if(c.recur!=null){var r=c.recur,nr=null;
@@ -692,9 +707,13 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     if(typeof s.guideSeen!=="boolean")s.guideSeen=false;
     if(!s.days||typeof s.days!=="object"||Array.isArray(s.days))s.days={};
     if(!isDay(s.selectedDate))s.selectedDate=todayKey();
+    if(!isDay(s.memoDay)){var md=s.selectedDate,tk0=todayKey();for(var kk in s.days){if(!s.days.hasOwnProperty(kk)||!isDay(kk)||kk<=md||kk>tk0)continue;var dd=s.days[kk];if(dd&&typeof dd==="object"&&(dd.memoSnap||dd.memoPage||dd.ended||(Array.isArray(dd.todos)&&dd.todos.length)||(Array.isArray(dd.unplanned)&&dd.unplanned.length)))md=kk;}s.memoDay=md;}
     for(var k in s.days){if(!s.days.hasOwnProperty(k))continue;
       var d=s.days[k]; if(!isDay(k)||!d||typeof d!=="object"||Array.isArray(d)){delete s.days[k];continue;}
       d.todos=objs(d.todos).map(normTask); d.unplanned=objs(d.unplanned).map(normCap);
+      if(d.memoSnap!=null){if(Array.isArray(d.memoSnap)&&d.memoPage==null)d.memoPage=objs(d.memoSnap).map(function(c){return pageItem(capFix(c,true),k);});delete d.memoSnap;}
+      if(d.memoPage!=null){if(Array.isArray(d.memoPage))d.memoPage=objs(d.memoPage).map(pageFix);else delete d.memoPage;}
+      if(d.memoUsed)d.memoUsed=true; else delete d.memoUsed;
       var po=d.prevOverride; d.prevOverride=(po==null||po===""||!isFinite(+po))?null:Math.max(0,Math.round(+po));
       if(d.ended)d.ended=true; else delete d.ended;
     }
@@ -713,11 +732,31 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       state=seed();
     }
   }
-  function pruneDays(){for(var k in state.days){if(!state.days.hasOwnProperty(k))continue;var d=state.days[k];if(!d.ended&&!d.todos.length&&!d.unplanned.length&&d.prevOverride==null)delete state.days[k];}}
+  function pruneDays(){for(var k in state.days){if(!state.days.hasOwnProperty(k))continue;var d=state.days[k];if(!d.ended&&!d.todos.length&&!d.unplanned.length&&d.prevOverride==null&&!d.memoUsed&&!d.memoPage)delete state.days[k];}}
+  // ---- memo notebook: state.memo is the page of state.memoDay; every other day keeps its own page (memoPage) ----
+  // a page item is small: text, note, ticked or not, and for a repeating item its rule label and whether it was due that day
+  function pageItem(c,k){var it={t:c.text||""};if(c.note)it.n=c.note;if(isRecurring(c)){it.r=recurLabel(c);it.i=c.id;if(inList(c.recurDone,k))it.d=1;if(isDue(c,k))it.u=1;}else if(c.done)it.d=1;return it;}
+  function pageFix(c){var it={t:c.t==null?"":String(c.t)};if(c.n!=null&&c.n!=="")it.n=String(c.n);if(c.d)it.d=1;if(c.r!=null){it.r=String(c.r);if(typeof c.i==="string"&&IDRX.test(c.i))it.i=c.i;if(c.u)it.u=1;}return it;}
+  function dayRec(k){if(!state.days[k])state.days[k]={todos:[],unplanned:[],prevOverride:null};return state.days[k];}
+  function memoLive(){return state.selectedDate===state.memoDay;}
+  // turning to a later page: close the current page, then copy what is left (unticked one-offs + repeating items) onto every new page
+  function turnPages(to){
+    var from=state.memoDay,k; if(!from||to<=from)return false;
+    var fr=dayRec(from); if(!fr.memoPage)fr.memoPage=state.memo.map(function(c){return pageItem(c,from);});
+    var carry=state.memo.filter(function(c){return isRecurring(c)||!c.done;});
+    for(k=addDays(from,1);k<to;k=addDays(k,1)){var sr=dayRec(k);if(!sr.memoPage)sr.memoPage=carry.map(function(c){return pageItem(c,k);});}
+    state.memo=carry; state.memoDay=to; recurEdit=null;
+    for(k in capSel)delete capSel[k];
+    lastMemoJson=JSON.stringify(state.memo);
+    return true;
+  }
+  function dayUsed(k){var d=state.days[k];return !!(d&&(d.todos.length||d.unplanned.length||d.memoUsed));}
+  function lastUsedBefore(tk){var best=null;for(var k in state.days){if(state.days.hasOwnProperty(k)&&k<tk&&dayUsed(k)&&(!best||k>best))best=k;}return best;}
   function save(){
     if(undoFn)hideUndoToast();
+    var mj=JSON.stringify(state.memo); if(mj!==lastMemoJson){if(lastMemoJson!==null&&isDay(state.memoDay))dayRec(state.memoDay).memoUsed=true;lastMemoJson=mj;}
     pruneDays();
-    try{localStorage.setItem(KEY,JSON.stringify(state));}
+    try{var sj=JSON.stringify(state);localStorage.setItem(KEY,sj);lastSavedRaw=sj;}
     catch(e){if(!saveWarned){saveWarned=true;alert("保存失败：浏览器的存储空间可能满了，或者被禁用了。请先到设置里「导出备份」，以免记录丢失。");}}
   }
 
@@ -786,16 +825,16 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     h+='<button class="smallbtn" data-act="undoInt">↶ 撤销上一个打扰</button></div></div>';
     h+='<div class="exp-sec"><div class="lab">补记</div><div class="ctl-row">';
     h+='<button class="smallbtn" data-act="pom">＋手动记一个番茄（在 App 外做完的）</button><button class="smallbtn" data-act="unpom">－ 删掉一个番茄</button></div></div>';
-    h+='<div class="exp-sec"><div class="lab">每个番茄的意图 / 回顾</div>';
+    h+='<div class="exp-sec"><div class="lab">每个番茄的意图和回顾</div>';
     if(c===0){h+='<div class="note-empty">还没有完成的番茄。做完一个后，这里会出现它的意图和回顾栏。</div>';}
     else{var pn=0; for(i=0;i<t.events.length;i++){if(t.events[i].t!=="pom")continue; pn++;
       h+='<div class="pom-note" data-ev="'+i+'"><span class="tag">番茄 '+pn+'</span>';
-      h+='<textarea data-act="intent" rows="1" placeholder="意图（可留空）">'+esc(t.events[i].intention)+'</textarea>';
-      h+='<textarea data-act="review" rows="1" placeholder="回顾（可留空）">'+esc(t.events[i].review)+'</textarea></div>';
+      h+='<textarea data-act="intent" rows="1" placeholder="意图（可留空）"'+(locked()?' readonly':'')+'>'+esc(t.events[i].intention)+'</textarea>';
+      h+='<textarea data-act="review" rows="1" placeholder="回顾（可留空）"'+(locked()?' readonly':'')+'>'+esc(t.events[i].review)+'</textarea></div>';
     }}
     h+='</div>';
     var fx=(T.phase==="work"&&T.taskId===t.id);
-    if(!t.deferred&&!fx&&!locked())h+='<div class="exp-sec exp-other"><div class="lab">其他</div><div class="ctl-row"><button class="smallbtn" data-act="toMemo">移到活动备忘</button></div></div>';
+    if(!t.deferred&&!fx&&!locked()&&memoLive())h+='<div class="exp-sec exp-other"><div class="lab">其他</div><div class="ctl-row"><button class="smallbtn" data-act="toMemo">移到活动备忘</button></div></div>';
     return h;
   }
 
@@ -803,7 +842,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var open=!!expanded[t.id], focusing=(T.phase==="work"&&T.taskId===t.id), lk=locked();
     var rem0=0;
     if(focusing){rem0=T.running?(T.target-Date.now()):T.remaining; if(rem0<0)rem0=0;}
-    var df=!!t.deferred, canSel=!lk&&!df&&!focusing;
+    var df=!!t.deferred, canSel=!lk&&!df&&!focusing&&memoLive();
     var h='<li class="item'+(t.done?" done":"")+(df?" deferred":"")+(open?" expanded":"")+(focusing?" focusing":"")+'" data-id="'+t.id+'" data-list="todo">';
     h+='<div class="row">';
     h+=numHTML(idx,t.id,canSel,!lk,!!todoSel[t.id],'data-act="tsel"',lk?"":(canSel?"点击选中；按住拖动排序，或拖到活动备忘":"按住拖动排序"));
@@ -877,6 +916,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     return {state:"upcoming",nextKey:next};
   }
   function setHabitDone(srcId,done){
+    if(!memoLive()){var pa=capList("memo");for(var pj=0;pj<pa.length;pj++)if(pa[pj].i===srcId&&pa[pj].r!=null){if(done)pa[pj].d=1;else delete pa[pj].d;}return;}
     for(var i=0;i<state.memo.length;i++){if(state.memo[i].id===srcId){
       var m=state.memo[i];m.recurDone=m.recurDone||[];var key=state.selectedDate,ix=m.recurDone.indexOf(key);
       if(done){if(ix<0)m.recurDone.push(key);}else{if(ix>=0)m.recurDone.splice(ix,1);}
@@ -910,32 +950,35 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     if(type==="everyN")h+='<div class="re-extra">每 <input class="re-n" data-cact="recurN" type="number" min="2" step="1" value="'+Math.max(2,r.n||2)+'"> 天一次</div>';
     else if(type==="weekly"){var nm=["一","二","三","四","五","六","日"],mp=[1,2,3,4,5,6,0],dd=r.days||[],i;h+='<div class="re-days">';for(i=0;i<7;i++)h+='<button class="re-day'+(dd.indexOf(mp[i])>=0?" on":"")+'" data-cact="recurDay" data-day="'+mp[i]+'">'+nm[i]+'</button>';h+='</div>';}
     h+=recurCal(c);
-    h+='<div class="re-hint">点日期可单独加上 / 去掉某天</div>';
+    h+='<div class="re-hint">点日期可单独加上或去掉某天</div>';
     h+='</div>';
     return h;
   }
   function recurStatus(c,info){
     if(!info)return "";
     var lbl=recurLabel(c), st="";
-    if(info.state==="due")st='<span class="recur-state st-due">今天该做</span>';
+    var past=state.selectedDate<todayKey();
+    if(past)st='<span class="recur-state">'+(info.state==="done"?"这天已打卡":(isDue(c,state.selectedDate)?"这天没打卡":"这天不用做"))+'</span>';
+    else if(info.state==="due")st='<span class="recur-state st-due">今天该做</span>';
     else if(info.state==="overdue")st='<span class="recur-state st-over">该做了'+(info.overdueDays>0?("，已过 "+info.overdueDays+" 天"):"")+'</span>';
     else if(info.state==="upcoming")st='<span class="recur-state">下次 '+(info.nextKey?fmtMD(info.nextKey):"—")+'</span>';
     else if(info.state==="done")st='<span class="recur-state">今天已打卡</span>';
     return (lbl?'<span class="recur-state">'+esc(lbl)+'</span>':'')+st;
   }
-  function capRow(c,idx,list,ph){
+  function capRow(c,idx,list,ph,ro){
     var isMemo=(list==="memo"),recurring=isMemo&&isRecurring(c),info=recurring?habitInfo(c):null;
-    var lk=(list==="unplanned"&&locked()), canSel=!locked();
+    var lk=!!ro||(list==="unplanned"&&locked()), canSel=!ro&&!locked();
     var ckOn=recurring?!!(info&&info.state==="done"):!!c.done;
     var liCls="item"+((c.done&&!recurring)?" done":"")+((recurring&&ckOn)?" done-today":"");
     var h='<li class="'+liCls+'" data-id="'+c.id+'" data-list="'+list+'"><div class="row">';
-    h+=numHTML(idx,c.id,canSel,!lk,!!capSel[c.id],'data-cact="capsel"',lk?"":(canSel?(isMemo?"点击选中；按住拖动排序，或拖到今日待办":"点击选中；按住拖动排序，或拖到其他清单"):"按住拖动排序"));
-    h+='<button class="ck'+(ckOn?" on":"")+'" data-cact="capdone" title="'+(recurring?"今日打卡":"标记完成")+'" aria-label="'+(recurring?"今日打卡":"标记完成")+'">'+IC.check+'</button>';
+    h+=numHTML(idx,c.id,canSel,!lk,!!capSel[c.id],'data-cact="capsel"',lk?"":(canSel?(isMemo?"点击选中；按住拖动排序，或拖到今日待办（拖到某个待办上，就并进它）":"点击选中；按住拖动排序，或拖到其他清单（拖到某个待办上，就并进它）"):"按住拖动排序"));
+    h+='<button class="ck'+(ckOn?" on":"")+'" data-cact="capdone" title="'+(recurring?(state.selectedDate<todayKey()?"这天打卡":"今日打卡"):"标记完成")+'" aria-label="'+(recurring?"打卡":"标记完成")+'">'+IC.check+'</button>';
     h+='<div class="c-body">';
     h+='<textarea class="task-text" data-cact="text" rows="1" placeholder="'+ph+'"'+(lk?' readonly':'')+'>'+esc(c.text)+'</textarea>';
-    h+='<textarea class="note-input" data-cact="note" rows="1" placeholder="添加备注…"'+(lk?' readonly':'')+'>'+esc(c.note)+'</textarea>';
-    h+='<div class="meta">'+(recurring?recurStatus(c,info):"")+'<button class="promote" data-cact="promote">＋ 加入今日待办</button></div>';
+    if(!ro||String(c.note||"").trim())h+='<textarea class="note-input" data-cact="note" rows="1" placeholder="添加备注…"'+(lk?' readonly':'')+'>'+esc(c.note)+'</textarea>';
+    h+='<div class="meta">'+(recurring?recurStatus(c,info):"")+(ro?'':'<button class="promote" data-cact="promote">＋ 加入今日待办</button>')+'</div>';
     h+='</div><div class="cap-icons">';
+    if(ro){h+='</div></div></li>';return h;}
     if(isMemo)h+='<button class="iconbtn exp'+(recurEdit===c.id?" active":"")+'" data-cact="recur" title="重复设置" aria-label="重复设置">'+IC.repeat+'</button>';
     h+='<button class="iconbtn del" data-cact="del" title="删除" aria-label="删除">'+IC.x+'</button></div></div>';
     if(isMemo&&recurEdit===c.id)h+=recurEditor(c);
@@ -946,16 +989,22 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function renderSelectBar(){
     var bar=document.getElementById("selectBar"); if(!bar)return;
     var c=selCounts(),h="";
-    if(c.t>0)h='<span class="sb-count">已选 '+c.t+' 条待办</span><button class="sb-go" data-sact="toMemo">移到活动备忘</button>';
+    if(c.t>0)h='<span class="sb-count">已选 '+c.t+' 条待办</span>'+(memoLive()?'<button class="sb-go" data-sact="toMemo">移到活动备忘</button>':'');
     else if(c.n>0){
       var parts=[];if(c.m)parts.push("备忘 "+c.m);if(c.u)parts.push("计划外 "+c.u);
-      h='<span class="sb-count">已选 '+c.n+' 条'+(parts.length>1?("（"+parts.join(" · ")+"）"):"")+'</span><button class="sb-go" data-sact="merge">合并成一个待办</button>';
-      if(c.m===0)h+='<button class="sb-go alt" data-sact="toMemo">移到活动备忘</button>';
+      if(pickInto)h='<span class="sb-count">点一个待办，把选中的 '+c.n+' 条并进去</span>';
+      else{
+        h='<span class="sb-count">已选 '+c.n+' 条'+(parts.length>1?("（"+parts.join(" · ")+"）"):"")+'</span><button class="sb-go" data-sact="merge">'+(c.n>1?"合并成一个待办":"加入今日待办")+'</button>';
+        if(hasMergeTarget())h+='<button class="sb-go alt" data-sact="pick">并入已有待办</button>';
+        if(c.m===0&&memoLive())h+='<button class="sb-go alt" data-sact="toMemo">移到活动备忘</button>';
+      }
     }
-    if(!h){bar.classList.remove("show");return;}
+    if(!h||(pickInto&&c.n===0)){if(pickInto)setPick(false);bar.classList.remove("show");return;}
     bar.innerHTML=h+'<button class="sb-x" data-sact="clear">取消</button>';
     bar.classList.add("show");
   }
+  function hasMergeTarget(){if(locked())return false;var a=curDay().todos;for(var i=0;i<a.length;i++)if(!a[i].deferred)return true;return false;}
+  function setPick(on){pickInto=!!on;document.body.classList.toggle("picking",pickInto);}
   function listHasSel(l){var a=capList(l),sel=(l==="todo")?todoSel:capSel;for(var i=0;i<a.length;i++)if(sel[a[i].id])return true;return false;}
   function syncSelState(){
     var ls=[["todo","todoList"],["unplanned","unplannedList"],["memo","memoList"]],c=selCounts();
@@ -970,7 +1019,25 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     renderTodos(); renderCaps();
   }
   function renderUnplanned(){var d=curDay(),h="",i; for(i=0;i<d.unplanned.length;i++)h+=capRow(d.unplanned[i],i,"unplanned","临时事项…"); document.getElementById("unplannedList").innerHTML=h; setCount("unplannedCount",d.unplanned.length); syncSelState(); renderSelectBar();}
-  function renderMemo(){var a=state.memo,h="",i; for(i=0;i<a.length;i++)h+=capRow(a[i],i,"memo","备忘内容…"); if(!a.length)h='<li class="empty-hint">长期或重复的事放这里，不分天。点右侧的重复图标可以设成每天或每周。</li>'; document.getElementById("memoList").innerHTML=h; setCount("memoCount",a.length); syncSelState(); renderSelectBar();}
+  function pageRow(c,idx,ed){
+    var rp=(c.r!=null),dn=!!c.d;
+    var h='<li class="item'+(dn&&!rp?" done":"")+(rp&&dn?" done-today":"")+'" data-id="pg'+idx+'" data-list="memo"><div class="row">'+numHTML(idx,"pg"+idx,false,false,false,"","");
+    h+='<button class="ck'+(dn?" on":"")+'" data-cact="capdone" title="'+(rp?"这天打卡":"标记完成")+'" aria-label="'+(rp?"这天打卡":"标记完成")+'">'+IC.check+'</button><div class="c-body">';
+    h+='<textarea class="task-text" data-cact="text" rows="1" placeholder="备忘内容…"'+(ed?'':' readonly')+'>'+esc(c.t)+'</textarea>';
+    if(ed||String(c.n||"").trim())h+='<textarea class="note-input" data-cact="note" rows="1" placeholder="添加备注…"'+(ed?'':' readonly')+'>'+esc(c.n||"")+'</textarea>';
+    if(rp)h+='<div class="meta">'+(c.r?'<span class="recur-state">'+esc(c.r)+'</span>':'')+'<span class="recur-state">'+(dn?"这天已打卡":(c.u?"这天没打卡":"这天不用做"))+'</span></div>';
+    h+='</div><div class="cap-icons">'+(ed?'<button class="iconbtn del" data-cact="del" title="删除" aria-label="删除">'+IC.x+'</button>':'')+'</div></div></li>';
+    return h;
+  }
+  function renderMemo(){
+    var live=memoLive(),lk=locked(),sk=state.selectedDate,a,h="",i,hint="";
+    if(live){a=state.memo;for(i=0;i<a.length;i++)h+=capRow(a[i],i,"memo","备忘内容…",lk);
+      if(!a.length)h='<li class="empty-hint">'+(lk?'这一天没有活动备忘。':'长期或重复的事放这里，没做完会自动抄到第二天。点右侧的重复图标可以设成每天或每周。')+'</li>';
+      if(lk)hint="这一天已结束，备忘也一起锁住了。点页面底部「重新打开」后可以修改。";}
+    else{var d=state.days[sk];a=(d&&d.memoPage)||[];for(i=0;i<a.length;i++)h+=pageRow(a[i],i,!lk);
+      if(!a.length)h='<li class="empty-hint">'+((d&&d.memoPage)?'这一页没有活动备忘。':'这一天没有存下备忘（这次更新以前的日子）。')+'</li>';
+      hint="这是 "+fmtMD(sk)+"那一页的备忘，改动只影响这一页。"+(lk?"已锁定，点页面底部「重新打开」后可以修改。":"");}
+    document.getElementById("memoBox").classList.toggle("ro",lk); var rh=document.getElementById("memoRoHint"); rh.textContent=hint; rh.classList.toggle("hidden",!hint); document.getElementById("memoList").innerHTML=h; setCount("memoCount",a.length); syncSelState(); renderSelectBar();}
   function renderCaps(){renderMemo();renderUnplanned();growAll();}
 
   function autoGrow(el){if(!el)return;el.style.height="auto";el.style.height=el.scrollHeight+"px";}
@@ -1014,12 +1081,17 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     else if(P>0&&est>P){el.textContent="今日预估共 "+est+" 个，超过可用的 "+P+" 个——建议删减或往后挪几项。";el.className="plan-check over";}
     else{el.textContent="今日预估共 "+est+" 个"+(P>0?("，在可用的 "+P+" 个以内。"):"。");el.className="plan-check ok";}
   }
-  function sealable(key){var d=state.days[key];return !!(d&&!d.ended&&((d.todos&&d.todos.length)||(d.unplanned&&d.unplanned.length)));}
+  function sealable(key){var d=state.days[key];return !!(d&&!d.ended&&dayUsed(key));}
   function renderCatchup(){
     var el=document.getElementById("catchup"), tk=todayKey(), sk=state.selectedDate;
+    var go=document.getElementById("catchupGo"),u=(sk===tk)?lastUsedBefore(tk):null;
     if(!catchupHidden&&sk<tk){
       document.getElementById("catchupText").innerHTML='你在看 <b>'+fmtMD(sk)+'</b>，今天是 <b>'+fmtMD(tk)+'</b>。';
-      document.getElementById("catchupGo").textContent=sealable(sk)?("封存 "+fmtMD(sk)+" 并开始今天"):"回到今天";
+      go.textContent=sealable(sk)?("封存 "+fmtMD(sk)+" 并开始今天"):"回到今天"; go.setAttribute("data-seal","");
+      el.classList.remove("hidden");
+    } else if(!catchupHidden&&u&&!state.days[u].ended){
+      document.getElementById("catchupText").innerHTML='<b>'+fmtMD(u)+'</b>还没封存。';
+      go.textContent="封存 "+fmtMD(u); go.setAttribute("data-seal",u);
       el.classList.remove("hidden");
     } else el.classList.add("hidden");
   }
@@ -1032,11 +1104,13 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function reviewBox(){
     var r=lastPomRef(); if(!r)return "";
     var it=String(r.ev.intention||"").trim();
-    return '<div class="fb-notes">'+(it?'<div class="fb-int">意图：'+esc(it)+'</div>':'')+'<textarea class="fn-area" data-tlive="review" rows="1" placeholder="回顾：这个番茄做得怎么样">'+esc(r.ev.review)+'</textarea></div>';
+    return '<div class="fb-notes">'+(it?'<div class="fb-int">意图：'+esc(it)+'</div>':'')+'<textarea class="fn-area" data-tlive="review" rows="1" placeholder="回顾：这个番茄做得怎么样">'+esc(r.ev.review)+'</textarea><button class="btn" data-tact="closeReview">写好了</button></div>';
   }
+  function nextTask(){if(!T.lastTask||locked())return null;var f=findTask(T.lastTask);return (f&&!f.t.done&&!f.t.deferred)?f.t:null;}
   function longNext(){return T.sessions>=Math.max(2,state.settings.dur.every||4);}
   function renderRestZone(){
     var z=document.getElementById("restZone"); if(!z)return;
+    if(T.lastPom){var ld=dayOfTask(T.lastPom.taskId);if(ld&&state.days[ld].ended)T.lastPom=null;}
     var rem=T.running?(T.target-Date.now()):T.remaining; if(rem<0)rem=0;
     var total=planMs(), el=total>0?(1-rem/total):0; if(el<0)el=0; if(el>1)el=1;
     var pct=(el*100).toFixed(1), h="", track='<div class="fb-track"><div class="fb-fill" id="fbFill" style="width:'+pct+'%"></div></div>';
@@ -1058,9 +1132,12 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     } else if(pendingRest){
       var long=longNext(), mins=long?state.settings.dur.long:state.settings.dur.short;
       h='<div class="fbar"><div class="fb-main"><span class="fb-msg">完成一个番茄，休息一下？</span><div class="fb-btns"><button class="btn pri" data-tact="rest">'+(long?"长休 ":"休息 ")+mins+' 分钟</button><button class="btn" data-tact="dismissRest">不休息</button></div></div>'+reviewBox()+'</div>';
+    } else if(pendingNext){
+      var nx=nextTask();
+      h='<div class="fbar"><div class="fb-main"><span class="fb-msg">'+(nx?"休息结束，继续下一个番茄？":"休息结束。点待办右边的 ▶ 开始下一个番茄。")+'</span><div class="fb-btns">'+(nx?'<button class="btn pri" data-tact="next">继续「'+esc(shortText(nx.text))+'」</button>':'')+'<button class="btn" data-tact="dismissNext">'+(nx?"稍后":"知道了")+'</button></div></div>'+reviewBox()+'</div>';
     } else {
       var lr=lastPomRef();
-      if(lr)h='<div class="fbar"><div class="fb-main"><span class="fb-msg">刚完成「'+esc(shortText(lr.t.text))+'」</span><div class="fb-btns"><button class="btn" data-tact="closeReview">收起</button></div></div>'+reviewBox()+'</div>';
+      if(lr)h='<div class="fbar"><div class="fb-main"><span class="fb-msg">刚完成「'+esc(shortText(lr.t.text))+'」</span></div>'+reviewBox()+'</div>';
     }
     // keep typing where it was when the bar is rebuilt (e.g. the pomodoro ends mid-sentence)
     var ae=document.activeElement, fk=(ae&&z.contains(ae)&&ae.getAttribute)?ae.getAttribute("data-tlive"):null, s0=0, s1=0;
@@ -1072,7 +1149,6 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     saveTimer();
   }
   function weekday(key){return ["周日","周一","周二","周三","周四","周五","周六"][dateFromKey(key).getDay()];}
-  function purgeDoneMemo(){var tk=todayKey(),keep=[],ch=false,i;for(i=0;i<state.memo.length;i++){var m=state.memo[i];if(m.done&&!isRecurring(m)&&(!m.doneOn||m.doneOn<tk)){ch=true;if(capSel[m.id])delete capSel[m.id];continue;}keep.push(m);}if(ch)state.memo=keep;return ch;}
   // re-rendering a list rebuilds its inputs; these put the caret back where the person was typing
   function focusSig(){
     var ae=document.activeElement; if(!ae||!ae.closest||!(ae.tagName==="INPUT"||ae.tagName==="TEXTAREA"))return null;
@@ -1084,9 +1160,10 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
   function refocus(sg){if(!sg)return;var el=null;try{el=document.querySelector(sg.q);}catch(_){}if(el&&el!==document.activeElement){el.focus();try{el.setSelectionRange(sg.s0,sg.s1);}catch(_){}}}
   function renderAll(){
-    if(purgeDoneMemo())save();
+    if(state.selectedDate>state.memoDay&&state.selectedDate<=todayKey()&&turnPages(state.selectedDate))save();
     var sk=state.selectedDate,k;
-    if(renderedDay!==sk){if(renderedDay!==null){for(k in todoSel)delete todoSel[k];for(k in capSel)delete capSel[k];}renderedDay=sk;}
+    if(renderedDay!==sk){if(renderedDay!==null){for(k in todoSel)delete todoSel[k];for(k in capSel)delete capSel[k];setPick(false);}renderedDay=sk;}
+    if(T.phase==="idle"&&(pendingRest||pendingNext||T.lastPom)&&(T.doneAt?(Date.now()-T.doneAt>3*3600000):(sk===todayKey()&&T.sessDay&&T.sessDay<sk))){pendingRest=false;pendingNext=false;T.lastPom=null;}
     var ed=!!(state.days[sk]&&state.days[sk].ended);
     document.getElementById("dateText").innerHTML=esc(fmtMD(sk)+" "+weekday(sk))+(sk===todayKey()?'<span class="today-tag">今天</span>':'')+(ed?'<span class="today-tag">已结束</span>':'');
     document.getElementById("dayNext").disabled=(sk>=todayKey());
@@ -1099,6 +1176,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var ended=!!curDay().ended,col=document.getElementById("mainCol"),banner=document.getElementById("lockBanner"),btn=document.getElementById("endDayBtn");
     if(ended){var n=dayTotal(curDay()),mn=fmtMin(dayMin(curDay()));banner.innerHTML='<span class="lb-stamp">这一天已结束</span><span>'+n+' 个番茄 · '+mn+' 专注</span><button class="reopen-btn" data-act="reopen">重新打开</button>';}
     banner.classList.toggle("show",ended); btn.classList.toggle("hidden",ended); if(col)col.classList.toggle("locked",ended);
+    ["todoInput","unplannedInput","memoInput"].forEach(function(x){var el=document.getElementById(x);if(el)el.disabled=ended;});
   }
   function reopenDay(){if(!curDay().ended)return;if(!confirm("重新打开「"+fmtMD(state.selectedDate)+"」？\n这一天会恢复成可以编辑。"))return;curDay().ended=false;saveRender();}
 
@@ -1115,6 +1193,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
 
   function onTodoClick(e){
+    if(pickInto){var pi=e.target.closest(".item[data-id]");if(pi&&!pi.classList.contains("deferred"))mergeInto(pi.getAttribute("data-id"),null);return;}
     if(e.target.closest("input,textarea,select"))return;
     var btn=e.target.closest("[data-act]"); if(!btn)return;
     var item=e.target.closest(".item"); if(!item)return;
@@ -1155,18 +1234,26 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     else if(act==="subtext"){var sid=inp.getAttribute("data-sub"),sl=f.t.sub||[],sk;for(sk=0;sk<sl.length;sk++){if(sl[sk].id===sid){sl[sk].text=inp.value;break;}}save();}
   }
 
-  function capList(list){return list==="todo"?curDay().todos:(list==="memo"?state.memo:curDay().unplanned);}
+  function capList(list){if(list==="memo"){if(memoLive())return state.memo;var d=state.days[state.selectedDate];return (d&&d.memoPage)||[];}return list==="todo"?curDay().todos:curDay().unplanned;}
+  // editing another day's page only touches that page
+  function pageIdx(id){var a=capList("memo"),n=(typeof id==="string"&&id.slice(0,2)==="pg")?parseInt(id.slice(2),10):-1;return (n>=0&&n<a.length)?n:-1;}
+  function pageClick(act,id){
+    if(locked())return; var a=capList("memo"),idx=pageIdx(id); if(idx<0)return;
+    if(act==="capdone"){if(a[idx].d)delete a[idx].d;else a[idx].d=1;dayRec(state.selectedDate).memoUsed=true;saveRender();}
+    else if(act==="del"){var sn=snapshot(),it=a.splice(idx,1)[0];dayRec(state.selectedDate).memoUsed=true;saveRender();showUndo("已删除「"+shortText(it.t)+"」",function(){restoreSnap(sn);});}
+  }
   function onCapClick(e){
     if(e.target.closest("input,textarea,select"))return;
     var btn=e.target.closest("[data-cact]"); if(!btn)return;
     var item=e.target.closest(".item"); if(!item)return;
     var act=btn.getAttribute("data-cact"),id=item.getAttribute("data-id"),list=item.getAttribute("data-list");
-    if(locked()&&(act==="promote"||list==="unplanned"))return;
     if(e.detail>1&&(act==="del"||act==="promote"))return;
+    if(list==="memo"&&!memoLive()){pageClick(act,id);return;}
+    if(locked()&&(act==="promote"||list==="unplanned"||list==="memo"))return;
     var arr=capList(list),idx=-1,i; for(i=0;i<arr.length;i++)if(arr[i].id===id){idx=i;break;} if(idx<0)return;
     if(act==="del"){var ci=arr.splice(idx,1)[0],cday=state.selectedDate;if(capSel[id])delete capSel[id];if(recurEdit===id)recurEdit=null;saveRender();showUndo("已删除「"+shortText(ci.text)+"」",function(){var a2=(list==="memo")?state.memo:((state.days[cday]||(state.days[cday]={todos:[],unplanned:[],prevOverride:null})).unplanned);a2.splice(Math.min(idx,a2.length),0,ci);saveRender();});}
     else if(act==="promote"){promoteAt(list,id,null);}
-    else if(act==="capdone"){var cd=arr[idx];if(list==="memo"&&isRecurring(cd)){setHabitDone(cd.id,!inList(cd.recurDone,state.selectedDate));}else{cd.done=!cd.done;if(cd.done)cd.doneOn=todayKey();else delete cd.doneOn;}saveRender();}
+    else if(act==="capdone"){var cd=arr[idx];if(list==="memo"&&isRecurring(cd)){setHabitDone(cd.id,!inList(cd.recurDone,state.selectedDate));}else{cd.done=!cd.done;if(cd.done){cd.doneOn=todayKey();cd.doneDay=state.selectedDate;}else{delete cd.doneOn;delete cd.doneDay;}}saveRender();}
     else if(act==="recur"){if(recurEdit===id){recurEdit=null;}else{recurEdit=id;recurCalMonth=monthKey(state.selectedDate);}renderCaps();}
     else if(act==="recurMode"){var rm=btn.getAttribute("data-mode"),it=arr[idx],pv=it.recur,was=pv?pv.type:"none";if(rm!==was){delete it.done;delete it.doneOn;}if(rm==="none"){it.recur=null;it.recurAdd=[];it.recurSkip=[];it.recurStart=null;it.recurDone=[];}else{if(rm==="daily")it.recur={type:"daily"};else if(rm==="everyN"){it.recur={type:"everyN",n:(pv&&pv.n)||2};var an=(was==="everyN")?pv.anchor:state.selectedDate;if(an)it.recur.anchor=an;}else if(rm==="weekly")it.recur={type:"weekly",days:(pv&&pv.days)||[]};if(!it.recurStart)it.recurStart=state.selectedDate;it.recurAdd=it.recurAdd||[];it.recurSkip=it.recurSkip||[];it.recurDone=it.recurDone||[];}save();renderCaps();}
     else if(act==="recurDay"){var dv=+btn.getAttribute("data-day"),iw=arr[idx];if(iw.recur&&iw.recur.type==="weekly"){iw.recur.days=iw.recur.days||[];var di=iw.recur.days.indexOf(dv);if(di>=0)iw.recur.days.splice(di,1);else iw.recur.days.push(dv);if(!iw.recurStart)iw.recurStart=state.selectedDate;save();renderCaps();}}
@@ -1179,13 +1266,16 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     var inp=e.target.closest("[data-cact]"); if(!inp)return;
     var item=e.target.closest(".item"); if(!item)return;
     var act=inp.getAttribute("data-cact"),id=item.getAttribute("data-id"),list=item.getAttribute("data-list");
+    if(list==="memo"&&locked())return;
+    if(list==="memo"&&!memoLive()){var pix=pageIdx(id);if(pix<0)return;var pi=capList("memo")[pix];if(act==="text")pi.t=inp.value;else if(act==="note"){if(inp.value)pi.n=inp.value;else delete pi.n;}else return;dayRec(state.selectedDate).memoUsed=true;save();autoGrow(inp);return;}
     if(locked()&&list==="unplanned")return;
     var arr=capList(list),it=null,i; for(i=0;i<arr.length;i++)if(arr[i].id===id){it=arr[i];break;} if(!it)return;
     if(act==="recurN"){if(it.recur){var nv=parseInt(inp.value,10);if(nv>=2)it.recur.n=nv;if(!it.recurStart)it.recurStart=state.selectedDate;save();var cw=document.querySelector('.item[data-id="'+id+'"] .recur-cal');if(cw){var tw=document.createElement("div");tw.innerHTML=recurCal(it);cw.parentNode.replaceChild(tw.firstChild,cw);}}return;}
     if(act==="text")it.text=inp.value; else if(act==="note")it.note=inp.value; save(); autoGrow(inp);
   }
+  function staleMemoSel(){if(memoLive())return false;for(var q in capSel)if(memoById(q))return true;return false;}
   function mergeAll(){
-    if(locked())return;
+    if(locked())return; if(staleMemoSel()){clearSel();return;}
     var sn=snapshot(),d=curDay(),mArr=state.memo,uArr=d.unplanned,picked=[],i;
     for(i=0;i<mArr.length;i++)if(capSel[mArr[i].id])picked.push(mArr[i]);
     for(i=0;i<uArr.length;i++)if(capSel[uArr[i].id])picked.push(uArr[i]);
@@ -1201,7 +1291,25 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     saveRender();
     showUndo(picked.length>1?("已合并成「杂事」加入今日待办"):("已加入今日待办「"+shortText(task.text)+"」"),function(){restoreSnap(sn);},task.id);
   }
-  function clearSel(){var k;for(k in capSel)delete capSel[k];for(k in todoSel)delete todoSel[k];renderTodos();renderCaps();}
+  // put memo / unplanned items into an existing todo as sub-items (one dragged item, or the current selection)
+  function mergeInto(tid,one){
+    if(locked())return; if((!one&&staleMemoSel())||(one&&one.list==="memo"&&!memoLive())){clearSel();return;}
+    var f=findTask(tid); if(!f||f.t.deferred)return;
+    var sn=snapshot(),d=curDay(),picked=[],i;
+    if(one){var a=capList(one.list);for(i=0;i<a.length;i++)if(a[i].id===one.id)picked.push(a[i]);}
+    else{for(i=0;i<state.memo.length;i++)if(capSel[state.memo[i].id])picked.push(state.memo[i]);for(i=0;i<d.unplanned.length;i++)if(capSel[d.unplanned[i].id])picked.push(d.unplanned[i]);}
+    if(!picked.length)return;
+    var t=f.t,nts=[],ids={};t.sub=t.sub||[];
+    picked.forEach(function(p){var pt=oneLine(p.text);ids[p.id]=1;t.sub.push({id:uid(),text:pt,done:!isRecurring(p)&&!!p.done});if(String(p.note||"").trim())nts.push((pt||"（未命名）")+"："+p.note);});
+    if(nts.length)t.note=(String(t.note||"").trim()?t.note+"\n":"")+nts.join("\n");
+    d.unplanned=d.unplanned.filter(function(x){return !ids[x.id];});
+    state.memo=state.memo.filter(function(x){return !(ids[x.id]&&!isRecurring(x));});
+    if(recurEdit&&ids[recurEdit])recurEdit=null;
+    for(var k in capSel)delete capSel[k]; setPick(false);
+    saveRender();
+    showUndo(picked.length>1?("已把 "+picked.length+" 条并入「"+shortText(t.text)+"」"):("已并入「"+shortText(t.text)+"」"),function(){restoreSnap(sn);},t.id);
+  }
+  function clearSel(){setPick(false);var k;for(k in capSel)delete capSel[k];for(k in todoSel)delete todoSel[k];renderTodos();renderCaps();}
   function shortText(t){t=String(t||"").replace(/\s+/g," ").trim();return t?(t.length>18?t.slice(0,18)+"…":t):"未命名";}
   function showUndo(msg,fn,flashId){
     var t=document.getElementById("undoToast"); if(!t)return;
@@ -1218,7 +1326,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function restoreSnap(sn){state.days[sn.dk]=sn.day;state.memo=sn.memo;if(T.phase==="work"&&!findTaskAnyDay(T.taskId))abortCurrent();saveRender();}
   function memoById(id){for(var i=0;i<state.memo.length;i++)if(state.memo[i].id===id)return state.memo[i];return null;}
   function promoteAt(list,id,at){
-    if(locked())return;
+    if(locked()||(list==="memo"&&!memoLive()))return;
     var arr=capList(list),idx=-1,i;for(i=0;i<arr.length;i++)if(arr[i].id===id){idx=i;break;} if(idx<0)return;
     var sn=snapshot(),pit=arr[idx],ptask=newTask(oneLine(pit.text)),todos=curDay().todos;
     if(String(pit.note||"").trim())ptask.note=pit.note;
@@ -1266,18 +1374,21 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function dropTarget(el){var p=el&&el.closest&&el.closest("[data-droplist]");return p?{panel:p,list:p.getAttribute("data-droplist")}:null;}
   function canDrop(to){
     if(!drag||!to)return false;
+    if(to==="memo"&&(!memoLive()||locked()))return false;
     if(to===drag.list)return drag.list==="memo"||!locked();
     if(!DROPS[drag.list][to]||!drag.cross||locked())return false;
     return true;
   }
-  function clearDragMarks(){var ds=document.querySelectorAll(".drop-before,.drop-after,.drop-ok"),i;for(i=0;i<ds.length;i++)ds[i].classList.remove("drop-before","drop-after","drop-ok");}
+  function clearDragMarks(){var ds=document.querySelectorAll(".drop-before,.drop-after,.drop-ok,.drop-into"),i;for(i=0;i<ds.length;i++)ds[i].classList.remove("drop-before","drop-after","drop-ok","drop-into");}
   function endDrag(){drag=null;var dn=document.querySelectorAll(".item.dragging"),i;for(i=0;i<dn.length;i++)dn[i].classList.remove("dragging");clearDragMarks();}
   function dropRow(e,tg){var row=e.target.closest&&e.target.closest(".item[data-id]");return (row&&tg.panel.contains(row)&&row.getAttribute("data-id")!==drag.id)?row:null;}
+  // dragging a memo / unplanned item onto the middle of a todo row puts it inside that todo
+  function intoZone(e,tg,row){if(!row||tg.list!=="todo"||drag.list==="todo"||row.classList.contains("deferred"))return false;var r=row.querySelector(".row").getBoundingClientRect(),y=e.clientY-r.top;return y>r.height*0.25&&y<r.height*0.75&&e.clientY<=row.getBoundingClientRect().bottom;}
   function onDragStart(e){
     var g=e.target.closest&&e.target.closest("[data-grip]"); if(!g)return;
     var row=g.closest(".item"); if(!row)return;
     var list=row.getAttribute("data-list"),id=row.getAttribute("data-id");
-    if(list!=="memo"&&locked()){e.preventDefault();return;}
+    if(locked()||(list==="memo"&&!memoLive())){e.preventDefault();return;}
     var cross=true;
     if(list==="todo"){var f=findTask(id);cross=!!f&&!f.t.deferred&&!(T.phase==="work"&&T.taskId===id);}
     drag={id:id,list:list,cross:cross};
@@ -1294,7 +1405,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     try{e.dataTransfer.dropEffect="move";}catch(_){}
     if(tg.list!==drag.list)tg.panel.classList.add("drop-ok");
     var row=dropRow(e,tg);
-    if(row){var r=row.getBoundingClientRect();row.classList.add((e.clientY-r.top)>r.height/2?"drop-after":"drop-before");}
+    if(row&&intoZone(e,tg,row)){row.classList.add("drop-into");tg.panel.classList.remove("drop-ok");}
+    else if(row){var r=row.getBoundingClientRect();row.classList.add((e.clientY-r.top)>r.height/2?"drop-after":"drop-before");}
   }
   function onDrop(e){
     if(!drag)return;
@@ -1302,6 +1414,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     if(!tg||!canDrop(tg.list)){endDrag();return;}
     e.preventDefault();
     var dr=drag,row=dropRow(e,tg),tarr=capList(tg.list),at=null,i;
+    if(row&&intoZone(e,tg,row)){var into=row.getAttribute("data-id");endDrag();mergeInto(into,{list:dr.list,id:dr.id});return;}
     if(row){var tid=row.getAttribute("data-id"),r=row.getBoundingClientRect(),after=(e.clientY-r.top)>r.height/2;for(i=0;i<tarr.length;i++)if(tarr[i].id===tid){at=after?i+1:i;break;}}
     endDrag();
     if(tg.list===dr.list){
@@ -1317,11 +1430,13 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function onSelectBar(e){
     var b=e.target.closest&&e.target.closest("[data-sact]"); if(!b)return;
     var a=b.getAttribute("data-sact");
-    if(a==="merge")mergeAll(); else if(a==="clear")clearSel();
+    if(a==="merge")mergeAll();
+    else if(a==="pick"){setPick(true);renderSelectBar();}
+    else if(a==="clear"){if(pickInto){setPick(false);renderSelectBar();}else clearSel();}
     else if(a==="toMemo"){var c=selCounts(),src=c.t>0?"todo":"unplanned",arr=capList(src),sel=src==="todo"?todoSel:capSel,ids=[];for(var i=0;i<arr.length;i++)if(sel[arr[i].id])ids.push(arr[i].id);var k;for(k in todoSel)delete todoSel[k];for(k in capSel)delete capSel[k];if(!moveToMemo(src,ids,null)){renderTodos();renderCaps();}}
   }
 
-  function addItem(kind,val){val=(val||"").trim(); if(!val)return; if(kind!=="memo"&&locked())return;
+  function addItem(kind,val){val=(val||"").trim(); if(!val)return; if(locked())return; if(kind==="memo"&&!memoLive()){var pd=dayRec(state.selectedDate);pd.memoPage=pd.memoPage||[];pd.memoPage.push({t:val});pd.memoUsed=true;saveRender();return;}
     if(kind==="todo")curDay().todos.push(newTask(val));
     else if(kind==="unplanned")curDay().unplanned.push(newCap(val));
     else if(kind==="memo")state.memo.push(newCap(val));
@@ -1329,7 +1444,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
 
   // ---- timer ----
-  var T={phase:"idle",taskId:null,mode:"work",running:false,remaining:DEFAULT_DUR.work*60000,planned:0,target:0,tick:null,audio:null,sessions:0,sessDay:"",lastPom:null,endTO:null,fullscreen:false,intention:"",review:""};
+  var T={phase:"idle",taskId:null,mode:"work",running:false,remaining:DEFAULT_DUR.work*60000,planned:0,target:0,tick:null,audio:null,sessions:0,sessDay:"",lastPom:null,lastTask:null,doneAt:0,endTO:null,fullscreen:false,intention:"",review:""};
   function durMs(m){return (state.settings.dur[m]||DEFAULT_DUR[m])*60000;}
   // the length this pomodoro / break started with: changing the settings half-way does not stretch it
   function planMs(){return T.planned>0?T.planned:durMs(T.mode);}
@@ -1367,7 +1482,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function elapsedWorkMin(){var full=planMs(),rem=T.running?(T.target-Date.now()):T.remaining;var used=full-rem;if(used<0)used=0;if(used>full)used=full;return Math.max(1,Math.round(used/60000));}
   function doFinishWork(){
     var t=T.taskId?findTaskAnyDay(T.taskId):null, ev=t?addPom(t,elapsedWorkMin(),T.intention,T.review):null;
-    T.lastPom=ev?{taskId:t.id,evId:ev.id}:null;
+    T.lastPom=ev?{taskId:t.id,evId:ev.id}:null; T.lastTask=t?t.id:null; pendingNext=false; T.doneAt=Date.now();
     T.intention="";T.review="";
     var tk=todayKey(); if(T.sessDay!==tk){T.sessions=0;T.sessDay=tk;}
     T.sessions++;
@@ -1385,7 +1500,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     hideUndoToast(); // an undo from here on could take away the task this pomodoro is being recorded on
     clearTick(); T.phase="work"; T.taskId=id; T.mode="work"; T.remaining=durMs("work"); T.planned=T.remaining; T.fullscreen=false;
     T.intention="";T.review="";T.lastPom=null;
-    pendingRest=false; expanded[id]=false; delete todoSel[id];
+    pendingRest=false; pendingNext=false; expanded[id]=false; delete todoSel[id];
     ensureAudio(); startTick(); renderTimerChrome(); renderTodos(); renderRestZone();
   }
   function finishCurrent(){if(T.phase!=="work")return;var id=T.taskId;beep();doFinishWork();flashRow(id);}
@@ -1393,17 +1508,17 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   function startBreak(){
     if(T.phase==="break")return;
     T.mode=longNext()?"long":"short"; if(T.mode==="long")T.sessions=0;
-    T.phase="break"; T.taskId=null; T.remaining=durMs(T.mode); T.planned=T.remaining; pendingRest=false;
+    T.phase="break"; T.taskId=null; T.remaining=durMs(T.mode); T.planned=T.remaining; pendingRest=false; pendingNext=false;
     ensureAudio(); startTick(); renderTimerChrome(); renderRestZone();
   }
-  function skipBreak(){if(T.phase!=="break")return;clearTick();T.phase="idle";T.mode="work";T.remaining=durMs("work");T.planned=0;renderTimerChrome();renderRestZone();paintTimer();}
+  function skipBreak(){if(T.phase!=="break")return;clearTick();T.phase="idle";T.mode="work";T.remaining=durMs("work");T.planned=0;pendingNext=true;T.doneAt=Date.now();renderTimerChrome();renderRestZone();paintTimer();}
   function dismissRest(){pendingRest=false;renderRestZone();}
   function completeMode(){
     var cur=readTimerRaw();
     if(lastTimerJson&&cur&&cur!==lastTimerJson){reloadFromStorage();restoreTimer(cur,false);renderTimerChrome();renderAll();paintTimer();return;}
     clearTick(); T.remaining=0; beep();
     if(T.phase==="work"){var id=T.taskId;doFinishWork();flashRow(id);notify("专注完成，可以休息了");}
-    else{T.phase="idle";T.mode="work";T.remaining=durMs("work");T.planned=0;renderTimerChrome();renderRestZone();paintTimer();notify("休息结束");}
+    else{T.phase="idle";T.mode="work";T.remaining=durMs("work");T.planned=0;pendingNext=true;T.doneAt=Date.now();renderTimerChrome();renderRestZone();paintTimer();notify("休息结束");}
   }
   function timerInterrupt(kind){if(!T.taskId)return;var t=findTaskAnyDay(T.taskId);if(!t)return;t.events.push({t:kind});save();renderTodos();paintTimer();}
   function onTimerBtn(e){
@@ -1420,19 +1535,21 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     else if(a==="dismissRest")dismissRest();
     else if(a==="skip")skipBreak();
     else if(a==="closeReview"){T.lastPom=null;renderRestZone();}
+    else if(a==="dismissNext"){pendingNext=false;renderRestZone();}
+    else if(a==="next"){var nx=nextTask();pendingNext=false;if(!nx){renderRestZone();return;}if(needReEstimate(nx)){reEst={id:nx.id,action:"start"};saveRender();}else startForTask(nx.id);}
   }
 
   // ---- timer persistence: survives reloads and is shared between tabs ----
   var TKEY="tomato_timer_v1", lastTimerJson="";
-  function timerSnapshot(){return JSON.stringify({phase:T.phase,taskId:T.taskId,mode:T.mode,running:T.running,remaining:T.remaining,planned:T.planned,target:T.target,sessions:T.sessions,sessDay:T.sessDay,lastPom:T.lastPom,intention:T.intention,review:T.review,pendingRest:pendingRest});}
+  function timerSnapshot(){return JSON.stringify({phase:T.phase,taskId:T.taskId,mode:T.mode,running:T.running,remaining:T.remaining,planned:T.planned,target:T.target,sessions:T.sessions,sessDay:T.sessDay,lastPom:T.lastPom,intention:T.intention,review:T.review,pendingRest:pendingRest,pendingNext:pendingNext,lastTask:T.lastTask,doneAt:T.doneAt});}
   function saveTimer(){var j=timerSnapshot();if(j===lastTimerJson)return;lastTimerJson=j;try{localStorage.setItem(TKEY,j);}catch(e){}}
   function readTimerRaw(){try{return localStorage.getItem(TKEY);}catch(e){return null;}}
-  function reloadFromStorage(){try{var raw=localStorage.getItem(KEY),sd=state.selectedDate;if(raw){state=normalize(JSON.parse(raw));state.selectedDate=sd;}}catch(e){}}
+  function reloadFromStorage(){try{var raw=localStorage.getItem(KEY),sd=state.selectedDate;if(raw){state=normalize(JSON.parse(raw));state.selectedDate=sd;lastMemoJson=JSON.stringify(state.memo);}}catch(e){}}
   function restoreTimer(j,fromLoad){
     var o=null; try{o=JSON.parse(j||"null");}catch(e){o=null;}
     clearTick();
     T.phase="idle";T.taskId=null;T.mode="work";T.remaining=durMs("work");T.planned=0;T.target=0;T.intention="";T.review="";T.fullscreen=false;
-    pendingRest=!!(o&&o.pendingRest); T.sessions=o?(o.sessions|0):0; T.sessDay=(o&&o.sessDay)||""; T.lastPom=(o&&o.lastPom&&o.lastPom.taskId)?o.lastPom:null;
+    pendingRest=!!(o&&o.pendingRest); T.sessions=o?(o.sessions|0):0; T.sessDay=(o&&o.sessDay)||""; T.lastPom=(o&&o.lastPom&&o.lastPom.taskId)?o.lastPom:null; pendingNext=!!(o&&o.pendingNext); T.lastTask=(o&&typeof o.lastTask==="string")?o.lastTask:null; T.doneAt=(o&&typeof o.doneAt==="number")?o.doneAt:0;
     var ok=!!o&&(o.phase==="break"||(o.phase==="work"&&!!o.taskId&&!!findTaskAnyDay(o.taskId)));
     if(ok){
       T.phase=o.phase;T.taskId=o.taskId||null;T.mode=(o.phase==="work")?"work":(o.mode==="long"?"long":"short");
@@ -1472,7 +1589,8 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
 
   // the day whose todo the running pomodoro belongs to (null when nothing is running)
-  function runningDay(){if(T.phase!=="work"||!T.taskId)return null;for(var k in state.days){if(!state.days.hasOwnProperty(k))continue;var a=state.days[k].todos;for(var i=0;i<a.length;i++)if(a[i].id===T.taskId)return k;}return null;}
+  function dayOfTask(id){if(!id)return null;for(var k in state.days){if(!state.days.hasOwnProperty(k))continue;var a=state.days[k].todos;for(var i=0;i<a.length;i++)if(a[i].id===id)return k;}return null;}
+  function runningDay(){return (T.phase==="work")?dayOfTask(T.taskId):null;}
   function runningNote(){var t=T.taskId?findTaskAnyDay(T.taskId):null;return "\n正在进行的番茄（「"+shortText(t?t.text:"")+"」）会放弃，不计入。";}
   function endDay(){
     if(curDay().ended)return;
@@ -1480,16 +1598,16 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     if(!confirm("结束「"+fmtMD(state.selectedDate)+"」？\n这一天会锁定，需要时可以重新打开。"+(hit?runningNote():"")))return;
     if(hit)abortCurrent();
     curDay().ended=true;
-    if(state.selectedDate<todayKey())state.selectedDate=todayKey();
     catchupHidden=false;saveRender();
   }
-  // never show a future day; when the page we were on is finished (or empty) and a new day has begun, start the new day
+  // the page you were on stays until you turn it; only a "future" page (clock moved back) has to go
   function settleDate(){
-    var tk=todayKey(),sk=state.selectedDate;
-    if(!sk||sk>tk){state.selectedDate=tk;return true;}
-    if(sk<tk&&!sealable(sk)){state.selectedDate=tk;return true;}
-    return false;
+    var tk=todayKey(),ch=false;
+    if(!state.selectedDate||state.selectedDate>tk){state.selectedDate=tk;ch=true;}
+    if(state.memoDay>tk){state.memoDay=tk;ch=true;}
+    return ch;
   }
+  function sealDay(k){var d=state.days[k];if(!d||d.ended)return;if(runningDay()===k){if(!confirm("封存「"+fmtMD(k)+"」？"+runningNote()))return;abortCurrent();}d.ended=true;saveRender();}
   function goToday(){var sk=state.selectedDate;if(sk<todayKey()&&sealable(sk)){if(runningDay()===sk){if(!confirm("封存「"+fmtMD(sk)+"」并开始今天？"+runningNote()))return;abortCurrent();}state.days[sk].ended=true;}state.selectedDate=todayKey();catchupHidden=false;saveRender();}
 
   function syncSettings(){
@@ -1512,7 +1630,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       var backed=true; try{var cur=localStorage.getItem(KEY);if(cur)localStorage.setItem(KEY+"_before_import",cur);}catch(e){backed=false;}
       if(!confirm("导入会用这份备份替换现在的全部记录。\n"+(backed?"现在的记录会先在浏览器里另存一份。":"注意：浏览器的存储空间不够，没能先另存现在的记录。建议先取消，点「导出备份」存一份。")+(T.phase==="work"?runningNote():"")+"\n继续吗？"))return;
       if(T.phase==="work")abortCurrent();
-      state=s; settleDate(); expanded={}; capSel={}; todoSel={}; hideUndoToast();
+      state=s; lastMemoJson=JSON.stringify(state.memo); settleDate(); expanded={}; capSel={}; todoSel={}; hideUndoToast();
       save(); renderTimerChrome(); renderAll(); paintTimer();
       alert("导入成功。");
     };
@@ -1520,7 +1638,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
   }
 
   function init(){
-    load(); if(settleDate())save(); restoreTimer(readTimerRaw(),true); renderTimerChrome(); paintTimer(); renderAll();
+    load(); lastMemoJson=JSON.stringify(state.memo); try{lastSavedRaw=localStorage.getItem(KEY);}catch(_){} if(settleDate())save(); restoreTimer(readTimerRaw(),true); renderTimerChrome(); paintTimer(); renderAll();
     if(loadProblem!==null)setTimeout(function(){
       if(loadProblem)alert("读取本地记录时出错，记录可能损坏了。\n原始数据没有删除，已在浏览器里另存一份（"+loadProblem+"）。现在先显示一张空表。");
       else{alert("读取本地记录时出错，记录可能损坏了。\n浏览器的存储空间不够，没法在浏览器里另存原始数据。点「确定」后会下载一份原始数据文件，请先保存好。");download(loadRaw,"番茄记录_原始数据_"+todayKey()+".txt","text/plain");}
@@ -1548,6 +1666,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       autoGrow(e.target);
       if(T.phase==="work"){if(k==="intention")T.intention=e.target.value;else T.review=e.target.value;saveTimer();return;}
       var r=lastPomRef(); if(!r||k!=="review")return;
+      var rd=dayOfTask(r.t.id); if(rd&&state.days[rd].ended)return;
       r.ev.review=e.target.value; save();
       var pn=document.querySelector('#todoList .item[data-id="'+r.t.id+'"] .pom-note[data-ev="'+r.i+'"] textarea[data-act="review"]');
       if(pn&&pn!==document.activeElement){pn.value=r.ev.review;autoGrow(pn);}
@@ -1564,7 +1683,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
 
     document.getElementById("endDayBtn").addEventListener("click",endDay);
     document.getElementById("lockBanner").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest('[data-act="reopen"]');if(b)reopenDay();});
-    document.getElementById("catchupGo").addEventListener("click",goToday);
+    document.getElementById("catchupGo").addEventListener("click",function(){var k=this.getAttribute("data-seal");if(k)sealDay(k);else goToday();});
     document.getElementById("catchupX").addEventListener("click",function(){catchupHidden=true;renderCatchup();});
 
     document.getElementById("planToggle").addEventListener("click",function(){var p=document.getElementById("planPanel");p.classList.toggle("open");this.classList.toggle("on",p.classList.contains("open"));renderPlanCheck();});
@@ -1591,6 +1710,7 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
       if(ov.classList.contains("open")){ov.classList.remove("open");return;}
       if(document.getElementById("calOverlay").classList.contains("open")){closeCal();return;}
       if(T.fullscreen){T.fullscreen=false;renderTimerChrome();paintTimer();return;}
+      if(pickInto){setPick(false);renderSelectBar();return;}
       var c=selCounts(); if(c.t+c.n>0)clearSel();
     });
 
@@ -1604,17 +1724,25 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     document.getElementById("importBtn").addEventListener("click",function(){document.getElementById("importFile").click();});
     document.getElementById("importFile").addEventListener("change",function(e){if(e.target.files[0])importData(e.target.files[0]);e.target.value="";});
     document.getElementById("clearDayBtn").addEventListener("click",function(){var sk=state.selectedDate;if(locked()){alert("「"+fmtMD(sk)+"」已经结束了。要清空，先在页面底部点「重新打开」。");return;}var hit=(runningDay()===sk);if(confirm("清空「"+fmtMD(sk)+"」这天的待办和计划外紧急？"+(hit?runningNote():""))){if(hit)abortCurrent();var d=curDay();d.todos=[];d.unplanned=[];saveRender();}});
-    document.getElementById("clearAllBtn").addEventListener("click",function(){if(confirm("清空全部记录（所有日期 + 活动备忘 + 起始累计归零）？\n建议先导出备份。此操作不可撤销。"+(T.phase==="work"?runningNote():""))){if(T.phase==="work")abortCurrent();state.days={};state.memo=[];state.startOffset=0;state.selectedDate=todayKey();expanded={};catchupHidden=false;pendingRest=false;saveRender();}});
+    document.getElementById("clearAllBtn").addEventListener("click",function(){if(confirm("清空全部记录？所有日期和活动备忘都会删掉，起始累计也会归零。\n建议先导出备份。此操作不可撤销。"+(T.phase==="work"?runningNote():""))){if(T.phase==="work")abortCurrent();state.days={};state.memo=[];state.startOffset=0;state.selectedDate=todayKey();state.memoDay=todayKey();lastMemoJson="[]";expanded={};catchupHidden=false;pendingRest=false;saveRender();}});
 
     var tsegs=document.querySelectorAll("[data-theme-opt]");
     for(var ti=0;ti<tsegs.length;ti++)(function(b){b.addEventListener("click",function(){state.settings.theme=b.getAttribute("data-theme-opt");save();applyTheme();syncSettings();});})(tsegs[ti]);
 
     // another tab changed the records or the timer: follow it instead of overwriting it
+    function resync(){
+      var raw=null,tr=null; try{raw=localStorage.getItem(KEY);tr=localStorage.getItem(TKEY);}catch(_){return;}
+      if(raw&&raw!==lastSavedRaw){var ns,sd=state.selectedDate,fs=focusSig();try{ns=normalize(JSON.parse(raw));}catch(_){return;}var turned=(ns.memoDay!==state.memoDay);state=ns;state.selectedDate=sd;lastMemoJson=JSON.stringify(state.memo);lastSavedRaw=raw;if(turned){for(var ck in capSel)delete capSel[ck];setPick(false);recurEdit=null;}hideUndoToast();if(T.phase==="work"&&!findTaskAnyDay(T.taskId))restoreTimer(null,false);if(tr&&tr!==lastTimerJson)restoreTimer(tr,false);renderTimerChrome();renderAll();paintTimer();refocus(fs);}
+      else if(tr&&tr!==lastTimerJson){restoreTimer(tr,false);renderTimerChrome();renderAll();paintTimer();}
+    }
+    window.addEventListener("pageshow",function(e){if(e.persisted)resync();});
     window.addEventListener("storage",function(e){
       if(e.key===KEY&&e.newValue){
         var ns,sd=state.selectedDate,fs=focusSig();
         try{ns=normalize(JSON.parse(e.newValue));}catch(_){return;}
-        state=ns; state.selectedDate=sd; // each tab stays on the day it is showing
+        var turned=(ns.memoDay!==state.memoDay);
+        state=ns; state.selectedDate=sd; lastMemoJson=JSON.stringify(state.memo); lastSavedRaw=e.newValue; // each tab stays on the day it is showing
+        if(turned){for(var ck in capSel)delete capSel[ck];setPick(false);recurEdit=null;}
         hideUndoToast();
         if(T.phase==="work"&&!findTaskAnyDay(T.taskId))restoreTimer(null,false);
         renderTimerChrome(); renderAll(); paintTimer(); refocus(fs);
@@ -1625,9 +1753,10 @@ try{var _th=(JSON.parse(localStorage.getItem("tomato_record_v3")||"{}").settings
     });
     // background tabs get throttled timers: settle immediately when the tab comes back, and roll over at midnight
     var lastSeenDay=todayKey();
-    function checkRollover(){if(todayKey()===lastSeenDay)return false;lastSeenDay=todayKey();var fs=focusSig();if(settleDate())save();renderAll();refocus(fs);return true;}
+    function checkRollover(){if(todayKey()===lastSeenDay)return false;lastSeenDay=todayKey();catchupHidden=false;var fs=focusSig();if(settleDate())save();renderAll();refocus(fs);return true;}
     document.addEventListener("visibilitychange",function(){
       if(document.hidden)return;
+      resync();
       if(T.running&&T.target-Date.now()<=0){completeMode();return;}
       if(!checkRollover())paintTimer();
     });
